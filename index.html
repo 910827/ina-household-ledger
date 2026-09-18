@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="app"><aside class="side"><div class="logo"><span class="mark">M</span>모아</div><nav class="nav"><button class="on" data-page="home">⌂　대시보드</button><button data-page="transactions">≡　거래 내역</button><button data-page="budgets">◔　예산</button></nav><div class="side-foot"><span class="avatar">민</span><span><b>민지님</b><small>개인 가계부</small></span></div></aside><main><header class="top"><div class="month"><button>‹</button><b>2026년 9월</b><button>›</button></div><div><button class="auth" id="authButton">로그인<small>기기 동기화</small></button><button class="add" id="add">＋ 내역 추가</button></div></header><div class="content">
-<section class="page on" id="home"><div class="heading"><div><p class="eyebrow">SEPTEMBER OVERVIEW</p><h1>이번 달, 돈의 흐름</h1><p>첫 거래를 추가해 가계부를 시작해 보세요.</p></div><div class="stamp">TOTAL BALANCE<b id="balance">₩ 0</b></div></div><div class="metrics"><article class="metric"><i>↙</i><p>이번 달 수입</p><strong id="income">₩ 0</strong><small>등록된 수입이 없어요</small></article><article class="metric"><i>↗</i><p>이번 달 지출</p><strong id="expense">₩ 0</strong><small>등록된 지출이 없어요</small></article><article class="metric"><i>⌁</i><p>남은 예산</p><strong id="remain">₩ 0</strong><small>예산을 설정해 주세요</small></article><article class="metric due-metric"><i>◷</i><p>다음날 나갈 돈</p><strong id="tomorrowDue">₩ 0</strong><small id="tomorrowDueNote">등록된 내역이 없어요</small></article><article class="metric savings-metric"><i>◎</i><p>저축</p><strong id="savingsTotal">₩ 0</strong><small>이번 달 저축 금액</small></article></div><div class="grid"><article class="panel"><div class="panel-head"><div><p class="eyebrow">SPENDING TREND</p><h2>지출 추이</h2></div></div><div class="chart"><div class="y"><span>₩0</span><span>₩0</span><span>₩0</span><span>₩0</span></div><div class="chart-main"><div class="x"><span>1일</span><span>7일</span><span>14일</span><span>21일</span><span>28일</span></div></div></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BY CATEGORY</p><h2>소비 비율</h2></div></div><div class="donut-zone"><div class="donut" style="background:#e9ebf1"><div><b>₩0</b><small>총 지출</small></div></div><ul class="legend"><li><i style="background:#e3e6ef"></i>데이터 없음</li></ul></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>최근 내역</h2></div><button class="link" data-page="transactions">전체 보기 →</button></div><div id="recent" class="list"></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="link" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article></div></section>
+<section class="page on" id="home"><div class="heading"><div><p class="eyebrow">SEPTEMBER OVERVIEW</p><h1>이번 달, 돈의 흐름</h1><p>첫 거래를 추가해 가계부를 시작해 보세요.</p></div><div class="stamp">TOTAL BALANCE<b id="balance">₩ 0</b></div></div><div class="metrics"><article class="metric"><i>↙</i><p>이번 달 수입</p><strong id="income">₩ 0</strong><small>등록된 수입이 없어요</small></article><article class="metric"><i>↗</i><p>이번 달 지출</p><strong id="expense">₩ 0</strong><small>등록된 지출이 없어요</small></article><article class="metric"><i>⌁</i><p>남은 예산</p><strong id="remain">₩ 0</strong><small>예산을 설정해 주세요</small></article><article class="metric due-metric"><i>◷</i><p>다음 달 나갈 돈</p><strong id="tomorrowDue">₩ 0</strong><small id="tomorrowDueNote">등록된 내역이 없어요</small></article><article class="metric savings-metric"><i>◎</i><p>저축</p><strong id="savingsTotal">₩ 0</strong><small>이번 달 저축 금액</small></article></div><div class="grid"><article class="panel"><div class="panel-head"><div><p class="eyebrow">SPENDING TREND</p><h2>지출 추이</h2></div></div><div class="chart"><div class="y"><span>₩0</span><span>₩0</span><span>₩0</span><span>₩0</span></div><div class="chart-main"><div class="x"><span>1일</span><span>7일</span><span>14일</span><span>21일</span><span>28일</span></div></div></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BY CATEGORY</p><h2>소비 비율</h2></div></div><div class="donut-zone"><div class="donut" style="background:#e9ebf1"><div><b>₩0</b><small>총 지출</small></div></div><ul class="legend"><li><i style="background:#e3e6ef"></i>데이터 없음</li></ul></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>최근 내역</h2></div><button class="link" data-page="transactions">전체 보기 →</button></div><div id="recent" class="list"></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="link" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article></div></section>
 <section class="page" id="transactions"><div class="heading"><div><p class="eyebrow">ALL TRANSACTIONS</p><h1>거래 내역</h1></div></div><article class="panel full"><div class="filters"><button class="filter on" data-filter="all">전체</button><button class="filter" data-filter="expense">지출</button><button class="filter" data-filter="income">수입</button></div><div id="all" class="list"></div></article></section>
 <section class="page" id="budgets"><div class="heading"><div><p class="eyebrow">MONTHLY BUDGET</p><h1>예산 관리</h1><p>카테고리별 월 예산을 설정해 보세요.</p></div></div><div id="budgetCards" class="budget-cards"></div></section>
 </div></main></div>
@@ -39,11 +39,9 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const categoryMap = {
     '개인지출': ['생활비', '식비', '회사커피'],
     '고정지출': ['개인', '차', '주거', '고양이', '기타', '저축'],
-    '회사지출': [],
-    '생활비입금': ['생활비'],
-    '기타입금': ['기타']
+    '회사지출': []
   };
-  const paymentOptions = ['현대경차', '현대네이버', '국민쿠팡', '현금/체크', '기타', '포인트'];
+  const paymentOptions = ['현대경차', '현대네이버', '국민쿠팡', '현금', '체크카드', '기타', '포인트'];
   parent.innerHTML = Object.keys(categoryMap).map(x => `<option>${x}</option>`).join('');
   payment.innerHTML = paymentOptions.map(x => `<option>${x}</option>`).join('');
   function updateDetails() {
@@ -190,6 +188,33 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   performanceLabel.innerHTML = '카드 실적<select name="performance"><option value="included">실적 포함</option><option value="excluded">실적 미포함</option></select>';
   paymentLabel.after(performanceLabel);
 
+  /* 수입은 급여·부수입과 날짜·금액·내용만 입력하고, 지출에서만 세부 항목과 결제 정보를 받습니다. */
+  const categorySelect = entryForm.querySelector('[name="category"]');
+  const subcategorySelect = entryForm.querySelector('[name="subcategory"]');
+  const subcategoryLabel = subcategorySelect.closest('label');
+  const paymentSelect = entryForm.querySelector('[name="method"]');
+  const paymentInputLabel = paymentSelect.closest('label');
+  const typeChoices = entryForm.querySelectorAll('[name="type"]');
+  const expenseCategoryMap = {개인지출:['생활비','식비','회사커피'], 고정지출:['개인','차','주거','고양이','기타','저축'], 회사지출:[]};
+  const setTransactionTypeFields = () => {
+    const isIncome = entryForm.querySelector('[name="type"]:checked').value === 'income';
+    const categories = isIncome ? {급여:[], 부수입:[]} : expenseCategoryMap;
+    const previous = categorySelect.value;
+    categorySelect.innerHTML = Object.keys(categories).map(name => `<option>${name}</option>`).join('');
+    categorySelect.value = Object.prototype.hasOwnProperty.call(categories, previous) ? previous : Object.keys(categories)[0];
+    const details = categories[categorySelect.value];
+    subcategorySelect.innerHTML = details.map(name => `<option>${name}</option>`).join('');
+    subcategoryLabel.hidden = isIncome || details.length === 0;
+    paymentInputLabel.hidden = isIncome;
+    performanceLabel.hidden = isIncome;
+    subcategorySelect.disabled = isIncome || details.length === 0;
+    paymentSelect.disabled = isIncome;
+    performanceLabel.querySelector('[name="performance"]').disabled = isIncome;
+  };
+  typeChoices.forEach(choice => choice.addEventListener('change', setTransactionTypeFields));
+  categorySelect.addEventListener('change', setTransactionTypeFields);
+  setTransactionTypeFields();
+
   const categoryPanel = findPanel('소비 비율');
   categoryPanel.innerHTML = '<div class="panel-head"><div><p class="eyebrow">PERSONAL SPENDING</p><h2>개인지출</h2></div></div><div class="category-totals" id="personalTotals"></div>';
   const fixedCategoryPanel = categoryPanel.cloneNode(true);
@@ -207,11 +232,12 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   document.head.append(css);
 
   const displayMoney = value => '₩ ' + Number(value).toLocaleString('ko-KR');
-  const iconFor = category => ({개인지출:'◉',고정지출:'◆',회사지출:'▣',생활비입금:'↓',기타입금:'↓'})[category] || '₩';
+  const iconFor = category => ({개인지출:'◉',고정지출:'◆',회사지출:'▣',급여:'↓',부수입:'↓'})[category] || '₩';
   function transactionRow(transaction) {
     const detail = transaction.subcategory ? ` · ${transaction.subcategory}` : '';
     const performanceText = transaction.performance === 'excluded' ? ' · 실적 미포함' : '';
-    return `<div class="tx"><span class="tx-icon">${iconFor(transaction.category)}</span><div class="tx-info"><b>${transaction.title}</b><small>${transaction.date.slice(5).replace('-','월 ')}일 · ${transaction.category}${detail} · ${transaction.method}${performanceText}</small></div><strong class="amt ${transaction.type}">${transaction.type === 'income' ? '+' : '−'}${displayMoney(transaction.amount)}</strong><button class="delete" type="button" data-delete="${transaction.id}" aria-label="${transaction.title} 삭제">×</button></div>`;
+    const paymentText = transaction.type === 'expense' ? ` · ${transaction.method}` : '';
+    return `<div class="tx"><span class="tx-icon">${iconFor(transaction.category)}</span><div class="tx-info"><b>${transaction.title}</b><small>${transaction.date.slice(5).replace('-','월 ')}일 · ${transaction.category}${detail}${paymentText}${performanceText}</small></div><strong class="amt ${transaction.type}">${transaction.type === 'income' ? '+' : '−'}${displayMoney(transaction.amount)}</strong><button class="delete" type="button" data-delete="${transaction.id}" aria-label="${transaction.title} 삭제">×</button></div>`;
   }
   function none() { return '<p style="color:#969dad;font-size:12px;margin:16px 0">아직 등록된 내역이 없어요.</p>'; }
   function cardPerformance(name, target, colour) {
@@ -244,11 +270,11 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
     const companySpend = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '회사지출').reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${displayMoney(companySpend)}</b></div>`;
-    const today = new Date(); today.setHours(0,0,0,0); const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-    const tomorrowDate = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
-    const due = data.filter(t => t.type === 'expense' && t.date === tomorrowDate).reduce((sum,t) => sum + t.amount, 0);
+    const nextMonth = new Date(`${selectedMonth}-01T00:00:00`); nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const dueMethods = ['현대경차','현대네이버','국민쿠팡','체크카드'];
+    const due = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && dueMethods.includes(t.method)).reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#tomorrowDue').textContent = displayMoney(due);
-    document.querySelector('#tomorrowDueNote').textContent = due ? `${tomorrow.getMonth()+1}월 ${tomorrow.getDate()}일 예정` : '등록된 내역이 없어요';
+    document.querySelector('#tomorrowDueNote').textContent = due ? `${nextMonth.getMonth()+1}월 결제 예정` : '등록된 내역이 없어요';
     const savings = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '고정지출' && t.subcategory === '저축').reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#savingsTotal').textContent = displayMoney(savings);
   }
@@ -296,6 +322,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     if (!transaction) return;
     editingId = transaction.id;
     formNode.querySelector(`[name="type"][value="${transaction.type}"]`).checked = true;
+    formNode.querySelector(`[name="type"][value="${transaction.type}"]`).dispatchEvent(new Event('change'));
     formNode.querySelector('[name="category"]').value = transaction.category;
     formNode.querySelector('[name="category"]').dispatchEvent(new Event('change'));
     formNode.querySelector('[name="subcategory"]').value = transaction.subcategory || formNode.querySelector('[name="subcategory"]').value;
@@ -337,7 +364,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const money = value => '₩ ' + Number(value || 0).toLocaleString('ko-KR');
   const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const currentData = () => Array.isArray(data) ? [...data].sort((a,b) => b.date.localeCompare(a.date)) : [];
-  const transactionRows = list => list.length ? `<div class="detail-list">${list.map(item => `<div class="detail-row"><span class="tx-icon">${item.type === 'income' ? '↓' : '↑'}</span><div class="meta"><b>${escape(item.title)}</b><small>${escape(item.date)} · ${escape(item.category)}${item.subcategory ? ' · ' + escape(item.subcategory) : ''} · ${escape(item.method || '결제수단 없음')}</small></div><strong class="${item.type}">${item.type === 'income' ? '+' : '−'}${money(item.amount)}</strong></div>`).join('')}</div>` : '<p class="detail-empty">표시할 내역이 없어요.</p>';
+  const transactionRows = list => list.length ? `<div class="detail-list">${list.map(item => `<div class="detail-row"><span class="tx-icon">${item.type === 'income' ? '↓' : '↑'}</span><div class="meta"><b>${escape(item.title)}</b><small>${escape(item.date)} · ${escape(item.category)}${item.subcategory ? ' · ' + escape(item.subcategory) : ''}${item.type === 'expense' ? ' · ' + escape(item.method || '결제수단 없음') : ''}</small></div><strong class="${item.type}">${item.type === 'income' ? '+' : '−'}${money(item.amount)}</strong></div>`).join('')}</div>` : '<p class="detail-empty">표시할 내역이 없어요.</p>';
   const open = (eyebrow, title, summary, body) => {
     detailModal.querySelector('#detailEyebrow').textContent = eyebrow;
     detailModal.querySelector('#detailTitle').textContent = title;
@@ -381,8 +408,14 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const key = metric?.dataset.detail || panel?.dataset.detail;
     const list = currentData();
     if (key === 'income' || key === 'expense') {
-      const items = list.filter(item => item.type === key);
-      open('TRANSACTIONS', key === 'income' ? '수입 상세' : '지출 상세', {label:key === 'income' ? '수입 합계' : '지출 합계', amount:money(items.reduce((sum,item) => sum + Number(item.amount), 0))}, transactionRows(items));
+      const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+      const names = key === 'income' ? ['급여','부수입'] : ['개인지출','고정지출','회사지출'];
+      const items = list.filter(item => item.type === key && item.date.startsWith(selectedMonth));
+      const rows = names.map(name => {
+        const amount = items.filter(item => item.category === name).reduce((sum,item) => sum + Number(item.amount), 0);
+        return `<article><div><b>${name}</b><span>${money(amount)}</span></div></article>`;
+      }).join('');
+      open('MONTHLY SUMMARY', key === 'income' ? '이번 달 수입 상세' : '이번 달 지출 상세', {label:key === 'income' ? '이번 달 수입 합계' : '이번 달 지출 합계', amount:money(items.reduce((sum,item) => sum + Number(item.amount), 0))}, `<div class="detail-budget">${rows}</div>`);
     } else if (key === 'budget') openBudget();
     else if (key === 'category') openCategory();
     else if (key === 'card') openCard();
