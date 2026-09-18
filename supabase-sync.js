@@ -2,6 +2,7 @@
   const SUPABASE_URL = 'https://itaounybjdhangxnfxky.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_JOGPpqcB-B43bKebxC-k6Q_XEH5v4hD';
   const txKey = 'moa-one-file-v2';
+  const deletedTxKey = 'moa-deleted-tx-v1';
   const activeMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
   const budgetKey = `moa-budget-v1:${activeMonth}`;
   const budgetPrefix = `${activeMonth}|`;
@@ -12,12 +13,13 @@
   const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const newId = () => crypto.randomUUID();
   const localTransactions = () => JSON.parse(localStorage.getItem(txKey) || '[]');
+  const deletedTransactions = () => JSON.parse(localStorage.getItem(deletedTxKey) || '[]');
   const localBudgets = () => JSON.parse(localStorage.getItem(budgetKey) || '{}');
   const normalize = transaction => ({ ...transaction, id: uuid(transaction.id) ? transaction.id : newId() });
   const remoteToLocal = row => ({
     id: row.id, title: row.title, category: row.category, subcategory: row.subcategory,
     method: row.payment_method, performance: row.performance, date: row.occurred_on,
-    amount: Number(row.amount), type: row.type
+    amount: Number(row.amount), type: row.type, deletedAt: row.deleted_at || null
   });
   const localToRemote = transaction => ({
     id: transaction.id, user_id: session.user.id, title: transaction.title,
@@ -77,6 +79,7 @@
     syncing = true;
     try {
     let local = localTransactions().map(normalize);
+    let deleted = deletedTransactions().filter(transaction => uuid(transaction.id));
     localStorage.setItem(txKey, JSON.stringify(local));
     const [{ data: remoteRows, error: txError }, { data: budgetRows, error: budgetError }] = await Promise.all([
       client.from('transactions').select('*').order('occurred_on', { ascending: false }),
@@ -84,12 +87,18 @@
     ]);
     if (txError || budgetError) return console.error(txError || budgetError);
     const remote = remoteRows.map(remoteToLocal);
-    const remoteIds = new Set(remote.map(transaction => transaction.id));
-    const localOnly = local.filter(transaction => !remoteIds.has(transaction.id));
+    const remoteDeleted = remote.filter(transaction => transaction.deletedAt);
+    const deletedById = new Map([...deleted, ...remoteDeleted].map(transaction => [transaction.id, transaction]));
+    deleted = [...deletedById.values()];
+    const deletedIds = new Set(deletedById.keys());
+    local = local.filter(transaction => !deletedIds.has(transaction.id));
+    const remoteLive = remote.filter(transaction => !transaction.deletedAt);
+    const remoteIds = new Set(remoteLive.map(transaction => transaction.id));
+    const localOnly = local.filter(transaction => !remoteIds.has(transaction.id) && !deletedIds.has(transaction.id));
     if (localOnly.length) {
       const { error } = await client.from('transactions').upsert(localOnly.map(localToRemote));
       if (error) return console.error(error);
-      remote.push(...localOnly);
+      remoteLive.push(...localOnly);
     }
     const remoteBudgets = Object.fromEntries(budgetRows
       .filter(row => row.category.startsWith(budgetPrefix))
@@ -102,9 +111,10 @@
       Object.assign(remoteBudgets, currentBudgets);
     }
     const orderedLocal = ordered(local);
-    const orderedRemote = ordered(remote);
+    const orderedRemote = ordered(remoteLive);
     if (!same(orderedLocal, orderedRemote) || !same(currentBudgets, remoteBudgets)) {
       localStorage.setItem(txKey, JSON.stringify(orderedRemote));
+      localStorage.setItem(deletedTxKey, JSON.stringify(deleted));
       localStorage.setItem(budgetKey, JSON.stringify(remoteBudgets));
       reloadOnPage(document.querySelector('.page.on')?.id || 'home');
     }
@@ -141,10 +151,14 @@
       if (!session || !remove) return;
       event.preventDefault(); event.stopImmediatePropagation();
       const id = remove.dataset.delete;
+      const deletedAt = new Date().toISOString();
+      const { error } = await client.from('transactions').update({ deleted_at: deletedAt }).eq('id', id);
+      if (error) return alert(`삭제하지 못했어요: ${error.message}\n\n삭제 동기화 설정이 필요할 수 있어요.`);
       data = data.filter(item => String(item.id) !== id);
       localStorage.setItem(txKey, JSON.stringify(data));
-      const { error } = await client.from('transactions').delete().eq('id', id);
-      if (error) return alert(`삭제하지 못했어요: ${error.message}`);
+      const deleted = deletedTransactions().filter(item => item.id !== id);
+      deleted.push({ id, deletedAt });
+      localStorage.setItem(deletedTxKey, JSON.stringify(deleted));
       reloadOnPage('transactions');
     }, true);
     document.addEventListener('click', async event => {
