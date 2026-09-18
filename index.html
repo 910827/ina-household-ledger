@@ -68,12 +68,15 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   }
   function noItems() { return '<p style="color:#969dad;font-size:12px;margin:16px 0">아직 등록된 내역이 없어요.</p>'; }
   function performanceRow(name, target, className) {
-    const used = data.filter(t => t.type === 'expense' && t.method === name).reduce((sum, t) => sum + t.amount, 0);
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const used = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.method === name).reduce((sum, t) => sum + t.amount, 0);
     const rate = Math.min(100, Math.round(used / target * 100));
     return `<div class="card-row ${className}"><div class="card-row-head"><b>${name}</b><span>${moneyLocal(used)} / ${moneyLocal(target)}</span></div><div class="bar"><i style="width:${rate}%"></i></div><small>${rate}% 달성 · ${moneyLocal(Math.max(target - used, 0))} 남음</small></div>`;
   }
   function refresh() {
-    const list = [...data].sort((a,b) => b.date.localeCompare(a.date)).filter(t => filter === 'all' || t.type === filter);
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const monthData = data.filter(t => t.date.startsWith(selectedMonth));
+    const list = [...monthData].sort((a,b) => b.date.localeCompare(a.date)).filter(t => filter === 'all' || t.type === filter);
     document.querySelector('#recent').innerHTML = list.slice(0,4).map(txLine).join('') || noItems();
     document.querySelector('#all').innerHTML = list.map(txLine).join('') || noItems();
     document.querySelectorAll('[data-delete]').forEach(button => button.onclick = () => {
@@ -81,8 +84,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
       localStorage.setItem('moa-one-file-v2', JSON.stringify(data));
       refresh();
     });
-    const incomeValue = data.filter(t => t.type === 'income').reduce((sum,t) => sum + t.amount, 0);
-    const expenseValue = data.filter(t => t.type === 'expense').reduce((sum,t) => sum + t.amount, 0);
+    const incomeValue = monthData.filter(t => t.type === 'income').reduce((sum,t) => sum + t.amount, 0);
+    const expenseValue = monthData.filter(t => t.type === 'expense').reduce((sum,t) => sum + t.amount, 0);
     income.textContent = moneyLocal(incomeValue); expense.textContent = moneyLocal(expenseValue); balance.textContent = moneyLocal(incomeValue - expenseValue);
     document.querySelector('#cardPerformance').innerHTML = performanceRow('현대경차', 700000, '') + performanceRow('현대네이버', 400000, 'naver');
   }
@@ -241,7 +244,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   }
   function none() { return '<p style="color:#969dad;font-size:12px;margin:16px 0">아직 등록된 내역이 없어요.</p>'; }
   function cardPerformance(name, target, colour) {
-    const used = data.filter(t => t.type === 'expense' && t.method === name && t.performance !== 'excluded').reduce((sum,t) => sum + t.amount, 0);
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const used = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.method === name && t.performance !== 'excluded').reduce((sum,t) => sum + t.amount, 0);
     const percentage = Math.min(100, Math.round(used / target * 100));
     return `<div class="card-row"><div class="card-row-head"><b>${name}</b><span>${displayMoney(used)} / ${displayMoney(target)}</span></div><div class="bar"><i style="width:${percentage}%;background:${colour}"></i></div><small>${percentage}% 달성 · ${displayMoney(Math.max(target-used, 0))} 남음</small></div>`;
   }
@@ -253,7 +257,9 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     }).join('');
   }
   function render() {
-    const list = [...data].sort((a,b) => b.date.localeCompare(a.date)).filter(t => filter === 'all' || t.type === filter);
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const monthData = data.filter(t => t.date.startsWith(selectedMonth));
+    const list = [...monthData].sort((a,b) => b.date.localeCompare(a.date)).filter(t => filter === 'all' || t.type === filter);
     document.querySelector('#recent').innerHTML = list.slice(0,4).map(transactionRow).join('') || none();
     document.querySelector('#all').innerHTML = list.map(transactionRow).join('') || none();
     document.querySelectorAll('[data-delete]').forEach(button => button.onclick = () => {
@@ -261,13 +267,12 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
       localStorage.setItem('moa-one-file-v2', JSON.stringify(data));
       render();
     });
-    const incomeValue = data.filter(t => t.type === 'income').reduce((sum,t) => sum+t.amount, 0);
-    const expenseValue = data.filter(t => t.type === 'expense').reduce((sum,t) => sum+t.amount, 0);
+    const incomeValue = monthData.filter(t => t.type === 'income').reduce((sum,t) => sum+t.amount, 0);
+    const expenseValue = monthData.filter(t => t.type === 'expense').reduce((sum,t) => sum+t.amount, 0);
     income.textContent = displayMoney(incomeValue); expense.textContent = displayMoney(expenseValue); balance.textContent = displayMoney(incomeValue-expenseValue);
     document.querySelector('#cardPerformance').innerHTML = cardPerformance('현대경차',700000,'#5369df') + cardPerformance('현대네이버',400000,'#55ad88');
     categoryTotals('개인지출', ['생활비','식비','회사커피'], document.querySelector('#personalTotals'));
     categoryTotals('고정지출', ['개인','차','주거','고양이','기타','저축'], document.querySelector('#fixedTotals'));
-    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
     const companySpend = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '회사지출').reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${displayMoney(companySpend)}</b></div>`;
     const nextMonth = new Date(`${selectedMonth}-01T00:00:00`); nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -396,11 +401,12 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   };
   const openCard = () => {
     const cards = [{name:'현대경차',target:700000},{name:'현대네이버',target:400000}];
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
     const rows = cards.map(card => {
-      const amount = currentData().filter(item => item.type === 'expense' && item.method === card.name && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0);
+      const amount = currentData().filter(item => item.date.startsWith(selectedMonth) && item.type === 'expense' && item.method === card.name && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0);
       return `<article><div><b>${card.name}</b><span>${money(amount)} / ${money(card.target)}</span></div><small>${Math.min(100,Math.round(amount/card.target*100))}% 달성 · ${money(Math.max(card.target-amount,0))} 남음</small><div class="bar"><i style="width:${Math.min(100,amount/card.target*100)}%"></i></div></article>`;
     }).join('');
-    open('CARD PERFORMANCE', '카드별 실적 상세', {label:'실적 포함 지출', amount:money(currentData().filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0))}, `<div class="detail-budget">${rows}</div>`);
+    open('CARD PERFORMANCE', '카드별 실적 상세', {label:'이번 달 실적 포함 지출', amount:money(currentData().filter(item => item.date.startsWith(selectedMonth) && item.type === 'expense' && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0))}, `<div class="detail-budget">${rows}</div>`);
   };
   const openNextMonthDue = () => {
     const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
