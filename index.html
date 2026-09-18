@@ -140,8 +140,11 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const total = Number(budgets.개인지출 || 0) + Number(budgets.고정지출 || 0);
     const spent = categorySpend('개인지출') + categorySpend('고정지출');
     const left = total - spent;
-    document.querySelector('#remain').textContent = money(left);
-    remainingLabel.textContent = `설정 예산 ${money(total)} · 사용 ${money(spent)}`;
+    const remainValue = document.querySelector('#remain');
+    if (remainValue && remainingLabel) {
+      remainValue.textContent = money(left);
+      remainingLabel.textContent = `설정 예산 ${money(total)} · 사용 ${money(spent)}`;
+    }
     dashboardBudget.innerHTML = budgetLine('개인지출') + budgetLine('고정지출');
     budgetArea.innerHTML = ['개인지출', '고정지출'].map(name => `<article class="panel budget-card"><h2>${name}</h2><p>이번 달 예산 금액</p><label class="budget-input">예산 설정<input type="number" min="0" inputmode="numeric" data-budget="${name}" value="${Number(budgets[name]) || ''}" placeholder="0">원</label><div class="budget-numbers"><strong>${money(categorySpend(name))}</strong><span>사용 금액</span></div><div class="bar"><i style="width:${Number(budgets[name]) ? Math.min(100, categorySpend(name) / budgets[name] * 100) : 0}%"></i></div></article>`).join('') + '<button class="save-budget" type="button">예산 저장</button>';
     document.querySelector('.save-budget').onclick = () => {
