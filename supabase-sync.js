@@ -23,6 +23,10 @@
     occurred_on: transaction.date, amount: Number(transaction.amount), type: transaction.type
   });
   const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const reloadOnPage = page => {
+    sessionStorage.setItem('moa-active-page', page);
+    location.reload();
+  };
 
   function setAuthButton() {
     const button = document.querySelector('#authButton');
@@ -114,7 +118,7 @@
       try { await upsertTransaction(record); } catch (error) { return alert(`저장하지 못했어요: ${error.message}`); }
       delete form.dataset.editingId;
       document.querySelector('#modal').close();
-      location.reload();
+      reloadOnPage('transactions');
     }, true);
     document.addEventListener('click', async event => {
       const remove = event.target.closest('[data-delete]');
@@ -125,7 +129,7 @@
       localStorage.setItem(txKey, JSON.stringify(data));
       const { error } = await client.from('transactions').delete().eq('id', id);
       if (error) return alert(`삭제하지 못했어요: ${error.message}`);
-      location.reload();
+      reloadOnPage('transactions');
     }, true);
     document.addEventListener('click', async event => {
       const save = event.target.closest('.save-budget');
@@ -136,7 +140,7 @@
       const rows = Object.entries(budgets).map(([category, amount]) => ({ user_id: session.user.id, category, amount }));
       const { error } = await client.from('budgets').upsert(rows);
       if (error) return alert(`예산을 저장하지 못했어요: ${error.message}`);
-      location.reload();
+      reloadOnPage('budgets');
     }, true);
   }
 
