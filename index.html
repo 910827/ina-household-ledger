@@ -198,6 +198,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const subcategoryLabel = subcategorySelect.closest('label');
   const paymentSelect = entryForm.querySelector('[name="method"]');
   const paymentInputLabel = paymentSelect.closest('label');
+  const titleInput = entryForm.querySelector('[name="title"]');
+  const titleInputLabel = titleInput.closest('label');
   const typeChoices = entryForm.querySelectorAll('[name="type"]');
   const expenseCategoryMap = {개인지출:['생활비','식비','회사커피'], 고정지출:['개인','차','주거','고양이','기타'], 회사지출:[], 저축:['청년적금','ISA','토스증권','주택청약','추가 저축']};
   const setTransactionTypeFields = () => {
@@ -207,18 +209,33 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     categorySelect.innerHTML = Object.keys(categories).map(name => `<option>${name}</option>`).join('');
     categorySelect.value = Object.prototype.hasOwnProperty.call(categories, previous) ? previous : Object.keys(categories)[0];
     const details = categories[categorySelect.value];
+    const isSavings = !isIncome && categorySelect.value === '저축';
     subcategorySelect.innerHTML = details.map(name => `<option>${name}</option>`).join('');
     subcategoryLabel.hidden = isIncome || details.length === 0;
-    paymentInputLabel.hidden = isIncome;
-    performanceLabel.hidden = isIncome;
+    paymentInputLabel.hidden = isIncome || isSavings;
+    performanceLabel.hidden = isIncome || isSavings;
+    titleInputLabel.hidden = isSavings;
     subcategorySelect.disabled = isIncome || details.length === 0;
     paymentSelect.disabled = isIncome;
     performanceLabel.querySelector('[name="performance"]').disabled = isIncome;
+    if (isSavings) {
+      paymentSelect.value = '기타';
+      paymentSelect.tabIndex = -1;
+      performanceLabel.querySelector('[name="performance"]').value = 'excluded';
+      performanceLabel.querySelector('[name="performance"]').tabIndex = -1;
+      titleInput.value = `저축 · ${subcategorySelect.value}`;
+      titleInput.readOnly = true;
+    } else {
+      paymentSelect.tabIndex = 0;
+      performanceLabel.querySelector('[name="performance"]').tabIndex = 0;
+      if (titleInput.readOnly) titleInput.value = '';
+      titleInput.readOnly = false;
+    }
   };
   typeChoices.forEach(choice => choice.addEventListener('change', setTransactionTypeFields));
   categorySelect.addEventListener('change', setTransactionTypeFields);
   const savingsAmounts = {청년적금:500000, ISA:500000, 토스증권:200000, 주택청약:100000};
-  const setSavingsAmount = () => { const amount = savingsAmounts[subcategorySelect.value]; if (categorySelect.value === '저축' && amount) entryForm.querySelector('[name="amount"]').value = amount; };
+  const setSavingsAmount = () => { const amount = savingsAmounts[subcategorySelect.value]; if (categorySelect.value === '저축') { if (amount) entryForm.querySelector('[name="amount"]').value = amount; titleInput.value = `저축 · ${subcategorySelect.value}`; } };
   subcategorySelect.addEventListener('change', setSavingsAmount);
   categorySelect.addEventListener('change', setSavingsAmount);
   setTransactionTypeFields();
