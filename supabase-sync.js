@@ -2,7 +2,9 @@
   const SUPABASE_URL = 'https://itaounybjdhangxnfxky.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_JOGPpqcB-B43bKebxC-k6Q_XEH5v4hD';
   const txKey = 'moa-one-file-v2';
-  const budgetKey = 'moa-budget-v1';
+  const activeMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+  const budgetKey = `moa-budget-v1:${activeMonth}`;
+  const budgetPrefix = `${activeMonth}|`;
   let client;
   let session;
 
@@ -83,10 +85,12 @@
       if (error) return console.error(error);
       remote.push(...local);
     }
-    const remoteBudgets = Object.fromEntries(budgetRows.map(row => [row.category, Number(row.amount)]));
+    const remoteBudgets = Object.fromEntries(budgetRows
+      .filter(row => row.category.startsWith(budgetPrefix))
+      .map(row => [row.category.slice(budgetPrefix.length), Number(row.amount)]));
     const currentBudgets = localBudgets();
     if (!budgetRows.length && Object.keys(currentBudgets).length) {
-      const rows = Object.entries(currentBudgets).map(([category, amount]) => ({ user_id: session.user.id, category, amount: Number(amount) || 0 }));
+      const rows = Object.entries(currentBudgets).map(([category, amount]) => ({ user_id: session.user.id, category: budgetPrefix + category, amount: Number(amount) || 0 }));
       const { error } = await client.from('budgets').upsert(rows);
       if (error) return console.error(error);
       Object.assign(remoteBudgets, currentBudgets);
@@ -138,7 +142,7 @@
       event.preventDefault(); event.stopImmediatePropagation();
       const budgets = Object.fromEntries([...document.querySelectorAll('[data-budget]')].map(input => [input.dataset.budget, Number(input.value) || 0]));
       localStorage.setItem(budgetKey, JSON.stringify(budgets));
-      const rows = Object.entries(budgets).map(([category, amount]) => ({ user_id: session.user.id, category, amount }));
+      const rows = Object.entries(budgets).map(([category, amount]) => ({ user_id: session.user.id, category: budgetPrefix + category, amount }));
       const { error } = await client.from('budgets').upsert(rows);
       if (error) return alert(`예산을 저장하지 못했어요: ${error.message}`);
       reloadOnPage('budgets');

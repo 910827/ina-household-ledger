@@ -124,14 +124,18 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   /* 지출 추이 패널 제거 */
   document.querySelector('#home .grid > article:first-child').remove();
 
-  const budgetStorageKey = 'moa-budget-v1';
-  let budgets = JSON.parse(localStorage.getItem(budgetStorageKey) || 'null') || {개인지출: 0, 고정지출: 0};
+  const activeMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+  const budgetStorageKey = `moa-budget-v1:${activeMonth}`;
+  const legacyBudgets = JSON.parse(localStorage.getItem('moa-budget-v1') || 'null');
+  const isCurrentMonth = activeMonth === new Date().toISOString().slice(0, 7);
+  let budgets = JSON.parse(localStorage.getItem(budgetStorageKey) || 'null') || (isCurrentMonth ? legacyBudgets : null) || {개인지출: 0, 고정지출: 0};
+  if (!localStorage.getItem(budgetStorageKey) && legacyBudgets && isCurrentMonth) localStorage.setItem(budgetStorageKey, JSON.stringify(budgets));
   const budgetArea = document.querySelector('#budgetCards');
   const dashboardBudget = document.querySelector('#budgetPreview');
   const remainingLabel = document.querySelector('#remain').nextElementSibling;
   const money = n => '₩ ' + Number(n).toLocaleString('ko-KR');
   function categorySpend(category) {
-    return data.filter(t => t.type === 'expense' && t.category === category).reduce((sum, t) => sum + t.amount, 0);
+    return data.filter(t => t.date.startsWith(activeMonth) && t.type === 'expense' && t.category === category).reduce((sum, t) => sum + t.amount, 0);
   }
   function budgetLine(name) {
     const set = Number(budgets[name]) || 0;
@@ -184,9 +188,14 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   paymentLabel.after(performanceLabel);
 
   const categoryPanel = findPanel('소비 비율');
-  categoryPanel.querySelector('.donut-zone').innerHTML = '<div class="donut" id="expenseDonut"><div><b id="expenseDonutTotal">₩0</b><small>개인지출</small></div></div><ul class="legend" id="expenseLegend"></ul>';
+  categoryPanel.innerHTML = '<div class="panel-head"><div><p class="eyebrow">PERSONAL SPENDING</p><h2>개인지출</h2></div></div><div class="category-totals" id="personalTotals"></div>';
+  const fixedCategoryPanel = categoryPanel.cloneNode(true);
+  fixedCategoryPanel.querySelector('.eyebrow').textContent = 'FIXED SPENDING';
+  fixedCategoryPanel.querySelector('h2').textContent = '고정지출';
+  fixedCategoryPanel.querySelector('#personalTotals').id = 'fixedTotals';
+  categoryPanel.after(fixedCategoryPanel);
   const css = document.createElement('style');
-  css.textContent = '.top-budget{margin:0 0 15px}.top-budget #budgetPreview{display:grid;grid-template-columns:repeat(2,1fr);gap:0 28px}.top-budget .budget{margin:12px 0}.top-budget .panel-head{margin-bottom:5px}.top-budget .link{display:none}.grid{margin-top:0}.card-performance{order:2}.delete{border:0;background:transparent;color:#b6bbc8;font-size:17px;padding:5px}.delete:hover{color:#eb7164}@media(max-width:620px){.top-budget #budgetPreview{grid-template-columns:1fr}}';
+  css.textContent = '.top-budget{margin:0 0 15px}.top-budget #budgetPreview{display:grid;grid-template-columns:repeat(2,1fr);gap:0 28px}.top-budget .budget{margin:12px 0}.top-budget .panel-head{margin-bottom:5px}.top-budget .link{display:none}.grid{margin-top:0}.card-performance{order:2}.delete{border:0;background:transparent;color:#b6bbc8;font-size:17px;padding:5px}.delete:hover{color:#eb7164}.category-totals{display:grid;gap:0}.category-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #eff0f4;font-size:12px}.category-total:first-child{border-top:0}.category-total b{font:500 12px "DM Mono"}@media(max-width:620px){.top-budget #budgetPreview{grid-template-columns:1fr}}';
   document.head.append(css);
 
   const displayMoney = value => '₩ ' + Number(value).toLocaleString('ko-KR');
@@ -202,15 +211,12 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const percentage = Math.min(100, Math.round(used / target * 100));
     return `<div class="card-row"><div class="card-row-head"><b>${name}</b><span>${displayMoney(used)} / ${displayMoney(target)}</span></div><div class="bar"><i style="width:${percentage}%;background:${colour}"></i></div><small>${percentage}% 달성 · ${displayMoney(Math.max(target-used, 0))} 남음</small></div>`;
   }
-  function categoryRatio() {
-    const names = ['생활비','식비','회사커피'];
-    const values = names.map(name => data.filter(t => t.type === 'expense' && t.category === '개인지출' && t.subcategory === name).reduce((sum,t) => sum + t.amount, 0));
-    const total = values.reduce((sum,value) => sum + value, 0);
-    const colors = ['#6274df','#65c1a6','#efad66'];
-    const stops = values.map((value,index) => `${colors[index]} ${Math.round(values.slice(0,index).reduce((sum,item) => sum+item,0) / (total || 1) * 100)}% ${Math.round((values.slice(0,index+1).reduce((sum,item) => sum+item,0)) / (total || 1) * 100)}%`).join(',');
-    document.querySelector('#expenseDonut').style.background = total ? `conic-gradient(${stops})` : '#e9ebf1';
-    document.querySelector('#expenseDonutTotal').textContent = displayMoney(total);
-    document.querySelector('#expenseLegend').innerHTML = names.map((name,index) => `<li><i style="background:${colors[index]}"></i>${name}<b>${total ? Math.round(values[index]/total*100) : 0}%</b></li>`).join('');
+  function categoryTotals(category, names, target) {
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    target.innerHTML = names.map(name => {
+      const total = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === category && t.subcategory === name).reduce((sum,t) => sum + t.amount, 0);
+      return `<div class="category-total"><span>${name}</span><b>${displayMoney(total)}</b></div>`;
+    }).join('');
   }
   function render() {
     const list = [...data].sort((a,b) => b.date.localeCompare(a.date)).filter(t => filter === 'all' || t.type === filter);
@@ -225,7 +231,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const expenseValue = data.filter(t => t.type === 'expense').reduce((sum,t) => sum+t.amount, 0);
     income.textContent = displayMoney(incomeValue); expense.textContent = displayMoney(expenseValue); balance.textContent = displayMoney(incomeValue-expenseValue);
     document.querySelector('#cardPerformance').innerHTML = cardPerformance('현대경차',700000,'#5369df') + cardPerformance('현대네이버',400000,'#55ad88');
-    categoryRatio();
+    categoryTotals('개인지출', ['생활비','식비','회사커피'], document.querySelector('#personalTotals'));
+    categoryTotals('고정지출', ['개인','차','주거','고양이','기타'], document.querySelector('#fixedTotals'));
   }
   entryForm.onsubmit = event => {
     event.preventDefault();
@@ -320,11 +327,12 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     detailModal.showModal();
   };
   const openBudget = () => {
-    const budgets = JSON.parse(localStorage.getItem('moa-budget-v1') || '{}');
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const budgets = JSON.parse(localStorage.getItem(`moa-budget-v1:${selectedMonth}`) || '{}');
     const categories = ['개인지출','고정지출'];
     const rows = categories.map(name => {
       const set = Number(budgets[name]) || 0;
-      const spent = currentData().filter(item => item.type === 'expense' && item.category === name).reduce((sum,item) => sum + Number(item.amount), 0);
+      const spent = currentData().filter(item => item.date.startsWith(selectedMonth) && item.type === 'expense' && item.category === name).reduce((sum,item) => sum + Number(item.amount), 0);
       const rate = set ? Math.min(100, Math.round(spent / set * 100)) : 0;
       return `<article><div><b>${name}</b><span>${money(spent)} / ${money(set)}</span></div><small>${money(set - spent)} 남음</small><div class="bar"><i style="width:${rate}%"></i></div></article>`;
     }).join('');
@@ -389,6 +397,33 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   if (!activePage) return;
   sessionStorage.removeItem('moa-active-page');
   document.querySelector(`[data-page="${activePage}"]`)?.click();
-  history.replaceState(null, '', location.pathname);
+  const cleanUrl = new URL(location.href);
+  cleanUrl.searchParams.delete('view');
+  cleanUrl.hash = '';
+  history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search);
+})();
+</script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const selectedMonth = params.get('month') || new Date().toISOString().slice(0, 7);
+  const [year, month] = selectedMonth.split('-').map(Number);
+  const monthLabel = document.querySelector('.month b');
+  const monthButtons = document.querySelectorAll('.month button');
+  const formatMonth = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  monthLabel.textContent = `${year}년 ${month}월`;
+  function moveMonth(offset) {
+    const next = new Date(year, month - 1 + offset, 1);
+    const url = new URL(location.href);
+    url.searchParams.set('month', formatMonth(next));
+    const activePage = document.querySelector('.page.on')?.id;
+    if (activePage && activePage !== 'home') url.searchParams.set('view', activePage);
+    location.assign(url.toString());
+  }
+  monthButtons[0].onclick = () => moveMonth(-1);
+  monthButtons[1].onclick = () => moveMonth(1);
+  document.querySelector('#add').addEventListener('click', () => {
+    document.querySelector('[name="date"]').value = `${selectedMonth}-01`;
+  });
 })();
 </script></body></html>
