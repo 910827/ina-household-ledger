@@ -294,4 +294,91 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   };
   modalNode.addEventListener('close', () => { editingId = null; dialogTitle.textContent = '내역 추가'; submitButton.textContent = '내역 저장'; });
 })();
-</script><script>(()=>{document.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>document.querySelectorAll('[data-page]').forEach(item=>item.classList.toggle('on',item.dataset.page===button.dataset.page))))})();</script></body></html>
+</script><script>(()=>{document.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>document.querySelectorAll('[data-page]').forEach(item=>item.classList.toggle('on',item.dataset.page===button.dataset.page))))})();</script>
+<script>
+(() => {
+  const home = document.querySelector('#home');
+  const detailModal = document.createElement('dialog');
+  detailModal.id = 'panelDetailModal';
+  detailModal.innerHTML = '<div class="detail-dialog"><div class="dialog-head"><div><p class="eyebrow" id="detailEyebrow">DETAIL</p><h2 id="detailTitle">상세 내역</h2></div><button class="close" type="button" aria-label="상세 내역 닫기">×</button></div><div id="detailBody"></div></div>';
+  document.body.append(detailModal);
+  detailModal.querySelector('.close').onclick = () => detailModal.close();
+
+  const style = document.createElement('style');
+  style.textContent = '.metric[data-detail],.panel[data-detail]{cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s}.metric[data-detail]:hover,.panel[data-detail]:hover,.metric[data-detail]:focus-visible,.panel[data-detail]:focus-visible{transform:translateY(-2px);border-color:#aeb8ef;box-shadow:0 8px 20px #5369df16;outline:0}.metric[data-detail]::after,.panel[data-detail]::after{content:"상세 보기";float:right;color:#6878d8;font-size:10px;font-weight:bold}.detail-dialog{padding:25px;max-height:min(640px,82vh);overflow:auto}.detail-summary{display:flex;justify-content:space-between;align-items:end;padding:16px;background:#f5f6fb;border-radius:10px;margin:17px 0}.detail-summary b{font:500 21px "DM Mono"}.detail-summary small{color:#737b90;font-size:11px}.detail-list{display:grid}.detail-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid #eff0f4}.detail-row:first-child{border-top:0}.detail-row .meta{flex:1;min-width:0}.detail-row .meta b{display:block;font-size:12px}.detail-row .meta small{display:block;margin-top:4px;color:#81899b;font-size:10px}.detail-row strong{font:500 12px "DM Mono"}.detail-row .income{color:#21a178}.detail-row .expense{color:#eb7164}.detail-empty{color:#81899b;font-size:12px;padding:20px 0;text-align:center}.detail-budget{display:grid;gap:10px}.detail-budget article{border:1px solid #e8eaf0;border-radius:9px;padding:14px}.detail-budget div{display:flex;justify-content:space-between;gap:12px;font-size:12px}.detail-budget small{color:#81899b;font:10px "DM Mono"}.detail-budget .bar{margin-top:9px}';
+  document.head.append(style);
+
+  const money = value => '₩ ' + Number(value || 0).toLocaleString('ko-KR');
+  const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const currentData = () => Array.isArray(data) ? [...data].sort((a,b) => b.date.localeCompare(a.date)) : [];
+  const transactionRows = list => list.length ? `<div class="detail-list">${list.map(item => `<div class="detail-row"><span class="tx-icon">${item.type === 'income' ? '↓' : '↑'}</span><div class="meta"><b>${escape(item.title)}</b><small>${escape(item.date)} · ${escape(item.category)}${item.subcategory ? ' · ' + escape(item.subcategory) : ''} · ${escape(item.method || '결제수단 없음')}</small></div><strong class="${item.type}">${item.type === 'income' ? '+' : '−'}${money(item.amount)}</strong></div>`).join('')}</div>` : '<p class="detail-empty">표시할 내역이 없어요.</p>';
+  const open = (eyebrow, title, summary, body) => {
+    detailModal.querySelector('#detailEyebrow').textContent = eyebrow;
+    detailModal.querySelector('#detailTitle').textContent = title;
+    detailModal.querySelector('#detailBody').innerHTML = `<div class="detail-summary"><small>${summary.label}</small><b>${summary.amount}</b></div>${body}`;
+    detailModal.showModal();
+  };
+  const openBudget = () => {
+    const budgets = JSON.parse(localStorage.getItem('moa-budget-v1') || '{}');
+    const categories = ['개인지출','고정지출'];
+    const rows = categories.map(name => {
+      const set = Number(budgets[name]) || 0;
+      const spent = currentData().filter(item => item.type === 'expense' && item.category === name).reduce((sum,item) => sum + Number(item.amount), 0);
+      const rate = set ? Math.min(100, Math.round(spent / set * 100)) : 0;
+      return `<article><div><b>${name}</b><span>${money(spent)} / ${money(set)}</span></div><small>${money(set - spent)} 남음</small><div class="bar"><i style="width:${rate}%"></i></div></article>`;
+    }).join('');
+    const total = categories.reduce((sum,name) => sum + (Number(budgets[name]) || 0), 0);
+    open('BUDGET STATUS', '예산 상세', {label:'설정 예산 합계', amount:money(total)}, `<div class="detail-budget">${rows}</div>`);
+  };
+  const openCategory = () => {
+    const names = ['생활비','식비','회사커피'];
+    const expenses = currentData().filter(item => item.type === 'expense' && item.category === '개인지출');
+    const total = expenses.reduce((sum,item) => sum + Number(item.amount), 0);
+    const rows = names.map(name => {
+      const amount = expenses.filter(item => item.subcategory === name).reduce((sum,item) => sum + Number(item.amount), 0);
+      return `<article><div><b>${name}</b><span>${money(amount)}</span></div><small>${total ? Math.round(amount / total * 100) : 0}%</small></article>`;
+    }).join('');
+    open('BY CATEGORY', '소비 비율 상세', {label:'개인지출 합계', amount:money(total)}, `<div class="detail-budget">${rows}</div>`);
+  };
+  const openCard = () => {
+    const cards = [{name:'현대경차',target:700000},{name:'현대네이버',target:400000}];
+    const rows = cards.map(card => {
+      const amount = currentData().filter(item => item.type === 'expense' && item.method === card.name && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0);
+      return `<article><div><b>${card.name}</b><span>${money(amount)} / ${money(card.target)}</span></div><small>${Math.min(100,Math.round(amount/card.target*100))}% 달성 · ${money(Math.max(card.target-amount,0))} 남음</small><div class="bar"><i style="width:${Math.min(100,amount/card.target*100)}%"></i></div></article>`;
+    }).join('');
+    open('CARD PERFORMANCE', '카드별 실적 상세', {label:'실적 포함 지출', amount:money(currentData().filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((sum,item) => sum + Number(item.amount), 0))}, `<div class="detail-budget">${rows}</div>`);
+  };
+  function showDetail(target) {
+    const metric = target.closest('.metric[data-detail]');
+    const panel = target.closest('.panel[data-detail]');
+    const key = metric?.dataset.detail || panel?.dataset.detail;
+    const list = currentData();
+    if (key === 'income' || key === 'expense') {
+      const items = list.filter(item => item.type === key);
+      open('TRANSACTIONS', key === 'income' ? '수입 상세' : '지출 상세', {label:key === 'income' ? '수입 합계' : '지출 합계', amount:money(items.reduce((sum,item) => sum + Number(item.amount), 0))}, transactionRows(items));
+    } else if (key === 'budget') openBudget();
+    else if (key === 'category') openCategory();
+    else if (key === 'card') openCard();
+  }
+  function makePanelsInteractive() {
+    const metrics = [...home.querySelectorAll('.metric')];
+    if (metrics[0]) metrics[0].dataset.detail = 'income';
+    if (metrics[1]) metrics[1].dataset.detail = 'expense';
+    [...home.querySelectorAll('.panel')].forEach(panel => {
+      const title = panel.querySelector('h2')?.textContent.trim();
+      if (title === '예산 현황') panel.dataset.detail = 'budget';
+      if (title === '소비 비율') panel.dataset.detail = 'category';
+      if (title === '카드별 실적') panel.dataset.detail = 'card';
+    });
+    home.querySelectorAll('[data-detail]').forEach(panel => { panel.tabIndex = 0; panel.setAttribute('role','button'); });
+  }
+  makePanelsInteractive();
+  document.addEventListener('click', event => {
+    if (event.target.closest('button,input,select,a')) return;
+    if (event.target.closest('#home [data-detail]')) showDetail(event.target);
+  });
+  document.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('#home [data-detail]')) { event.preventDefault(); showDetail(event.target); }
+  });
+})();
+</script></body></html>
