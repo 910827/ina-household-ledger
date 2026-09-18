@@ -24,9 +24,9 @@
   });
   const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
   const reloadOnPage = page => {
-    sessionStorage.setItem('moa-active-page', page);
-    location.hash = page;
-    location.reload();
+    const url = new URL(location.href);
+    url.searchParams.set('view', page);
+    location.replace(url.toString());
   };
 
   function setAuthButton() {

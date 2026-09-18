@@ -289,9 +289,9 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     localStorage.setItem('moa-one-file-v2', JSON.stringify(data));
     modalNode.close();
     /* 저장 후 전체를 다시 계산해 개인·고정지출 예산과 카드 실적을 정확히 반영합니다. */
-    sessionStorage.setItem('moa-active-page', 'transactions');
-    location.hash = 'transactions';
-    window.location.reload();
+    const url = new URL(location.href);
+    url.searchParams.set('view', 'transactions');
+    window.location.replace(url.toString());
   };
   modalNode.addEventListener('close', () => { editingId = null; dialogTitle.textContent = '내역 추가'; submitButton.textContent = '내역 저장'; });
 })();
@@ -385,10 +385,10 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
 </script>
 <script>
 (() => {
-  const activePage = location.hash.slice(1) || sessionStorage.getItem('moa-active-page');
+  const activePage = new URLSearchParams(location.search).get('view') || location.hash.slice(1) || sessionStorage.getItem('moa-active-page');
   if (!activePage) return;
   sessionStorage.removeItem('moa-active-page');
   document.querySelector(`[data-page="${activePage}"]`)?.click();
-  history.replaceState(null, '', location.pathname + location.search);
+  history.replaceState(null, '', location.pathname);
 })();
 </script></body></html>
