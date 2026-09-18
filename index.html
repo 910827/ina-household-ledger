@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="app"><aside class="side"><div class="logo"><span class="mark">M</span>모아</div><nav class="nav"><button class="on" data-page="home">⌂　대시보드</button><button data-page="transactions">≡　거래 내역</button><button data-page="budgets">◔　예산</button></nav><div class="side-foot"><span class="avatar">민</span><span><b>민지님</b><small>개인 가계부</small></span></div></aside><main><header class="top"><div class="month"><button>‹</button><b>2026년 9월</b><button>›</button></div><div><button class="auth" id="authButton">로그인<small>기기 동기화</small></button><button class="add" id="add">＋ 내역 추가</button></div></header><div class="content">
-<section class="page on" id="home"><div class="heading"><div><p class="eyebrow">SEPTEMBER OVERVIEW</p><h1>이번 달, 돈의 흐름</h1><p>첫 거래를 추가해 가계부를 시작해 보세요.</p></div><div class="stamp">TOTAL BALANCE<b id="balance">₩ 0</b></div></div><div class="metrics"><article class="metric"><i>↙</i><p>이번 달 수입</p><strong id="income">₩ 0</strong><small>등록된 수입이 없어요</small></article><article class="metric"><i>↗</i><p>이번 달 지출</p><strong id="expense">₩ 0</strong><small>등록된 지출이 없어요</small></article><article class="metric"><i>⌁</i><p>남은 예산</p><strong id="remain">₩ 0</strong><small>예산을 설정해 주세요</small></article></div><div class="grid"><article class="panel"><div class="panel-head"><div><p class="eyebrow">SPENDING TREND</p><h2>지출 추이</h2></div></div><div class="chart"><div class="y"><span>₩0</span><span>₩0</span><span>₩0</span><span>₩0</span></div><div class="chart-main"><div class="x"><span>1일</span><span>7일</span><span>14일</span><span>21일</span><span>28일</span></div></div></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BY CATEGORY</p><h2>소비 비율</h2></div></div><div class="donut-zone"><div class="donut" style="background:#e9ebf1"><div><b>₩0</b><small>총 지출</small></div></div><ul class="legend"><li><i style="background:#e3e6ef"></i>데이터 없음</li></ul></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>최근 내역</h2></div><button class="link" data-page="transactions">전체 보기 →</button></div><div id="recent" class="list"></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="link" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article></div></section>
+<section class="page on" id="home"><div class="heading"><div><p class="eyebrow">SEPTEMBER OVERVIEW</p><h1>이번 달, 돈의 흐름</h1><p>첫 거래를 추가해 가계부를 시작해 보세요.</p></div><div class="stamp">TOTAL BALANCE<b id="balance">₩ 0</b></div></div><div class="metrics"><article class="metric"><i>↙</i><p>이번 달 수입</p><strong id="income">₩ 0</strong><small>등록된 수입이 없어요</small></article><article class="metric"><i>↗</i><p>이번 달 지출</p><strong id="expense">₩ 0</strong><small>등록된 지출이 없어요</small></article><article class="metric"><i>⌁</i><p>남은 예산</p><strong id="remain">₩ 0</strong><small>예산을 설정해 주세요</small></article><article class="metric due-metric"><i>◷</i><p>다음날 나갈 돈</p><strong id="tomorrowDue">₩ 0</strong><small id="tomorrowDueNote">등록된 내역이 없어요</small></article><article class="metric savings-metric"><i>◎</i><p>저축</p><strong id="savingsTotal">₩ 0</strong><small>이번 달 저축 금액</small></article></div><div class="grid"><article class="panel"><div class="panel-head"><div><p class="eyebrow">SPENDING TREND</p><h2>지출 추이</h2></div></div><div class="chart"><div class="y"><span>₩0</span><span>₩0</span><span>₩0</span><span>₩0</span></div><div class="chart-main"><div class="x"><span>1일</span><span>7일</span><span>14일</span><span>21일</span><span>28일</span></div></div></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BY CATEGORY</p><h2>소비 비율</h2></div></div><div class="donut-zone"><div class="donut" style="background:#e9ebf1"><div><b>₩0</b><small>총 지출</small></div></div><ul class="legend"><li><i style="background:#e3e6ef"></i>데이터 없음</li></ul></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>최근 내역</h2></div><button class="link" data-page="transactions">전체 보기 →</button></div><div id="recent" class="list"></div></article><article class="panel"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="link" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article></div></section>
 <section class="page" id="transactions"><div class="heading"><div><p class="eyebrow">ALL TRANSACTIONS</p><h1>거래 내역</h1></div></div><article class="panel full"><div class="filters"><button class="filter on" data-filter="all">전체</button><button class="filter" data-filter="expense">지출</button><button class="filter" data-filter="income">수입</button></div><div id="all" class="list"></div></article></section>
 <section class="page" id="budgets"><div class="heading"><div><p class="eyebrow">MONTHLY BUDGET</p><h1>예산 관리</h1><p>카테고리별 월 예산을 설정해 보세요.</p></div></div><div id="budgetCards" class="budget-cards"></div></section>
 </div></main></div>
@@ -38,7 +38,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const detail = detailLabel.querySelector('select');
   const categoryMap = {
     '개인지출': ['생활비', '식비', '회사커피'],
-    '고정지출': ['개인', '차', '주거', '고양이', '기타'],
+    '고정지출': ['개인', '차', '주거', '고양이', '기타', '저축'],
+    '회사지출': [],
     '생활비입금': ['생활비'],
     '기타입금': ['기타']
   };
@@ -46,7 +47,9 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   parent.innerHTML = Object.keys(categoryMap).map(x => `<option>${x}</option>`).join('');
   payment.innerHTML = paymentOptions.map(x => `<option>${x}</option>`).join('');
   function updateDetails() {
-    detail.innerHTML = categoryMap[parent.value].map(x => `<option>${x}</option>`).join('');
+    const options = categoryMap[parent.value] || [];
+    detailLabel.hidden = options.length === 0;
+    detail.innerHTML = options.map(x => `<option>${x}</option>`).join('');
   }
   parent.addEventListener('change', updateDetails);
   updateDetails();
@@ -175,7 +178,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const findPanel = title => [...home.querySelectorAll('.panel')].find(panel => panel.querySelector('h2')?.textContent === title);
   const budgetPanel = findPanel('예산 현황');
   const recentPanel = findPanel('최근 내역');
-  home.querySelector('.metrics .metric:nth-child(3)').remove();
+  document.querySelector('#remain')?.closest('.metric')?.remove();
   recentPanel.style.display = 'none';
   budgetPanel.classList.add('top-budget');
   home.querySelector('.metrics').after(budgetPanel);
@@ -194,12 +197,17 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   fixedCategoryPanel.querySelector('h2').textContent = '고정지출';
   fixedCategoryPanel.querySelector('#personalTotals').id = 'fixedTotals';
   categoryPanel.after(fixedCategoryPanel);
+  const companyCategoryPanel = categoryPanel.cloneNode(true);
+  companyCategoryPanel.querySelector('.eyebrow').textContent = 'COMPANY SPENDING';
+  companyCategoryPanel.querySelector('h2').textContent = '회사지출';
+  companyCategoryPanel.querySelector('#personalTotals').id = 'companyTotals';
+  fixedCategoryPanel.after(companyCategoryPanel);
   const css = document.createElement('style');
-  css.textContent = '.top-budget{margin:0 0 15px}.top-budget #budgetPreview{display:grid;grid-template-columns:repeat(2,1fr);gap:0 28px}.top-budget .budget{margin:12px 0}.top-budget .panel-head{margin-bottom:5px}.top-budget .link{display:none}.grid{margin-top:0}.card-performance{order:2}.delete{border:0;background:transparent;color:#b6bbc8;font-size:17px;padding:5px}.delete:hover{color:#eb7164}.category-totals{display:grid;gap:0}.category-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #eff0f4;font-size:12px}.category-total:first-child{border-top:0}.category-total b{font:500 12px "DM Mono"}@media(max-width:620px){.top-budget #budgetPreview{grid-template-columns:1fr}}';
+  css.textContent = '.top-budget{margin:0 0 15px}.top-budget #budgetPreview{display:grid;grid-template-columns:repeat(2,1fr);gap:0 28px}.top-budget .budget{margin:12px 0}.top-budget .panel-head{margin-bottom:5px}.top-budget .link{display:none}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.due-metric i{background:#f2efff;color:#8169cf}.savings-metric i{background:#ebf8f1;color:#26936e}.grid{margin-top:0}.card-performance{order:2}.delete{border:0;background:transparent;color:#b6bbc8;font-size:17px;padding:5px}.delete:hover{color:#eb7164}.category-totals{display:grid;gap:0}.category-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #eff0f4;font-size:12px}.category-total:first-child{border-top:0}.category-total b{font:500 12px "DM Mono"}@media(max-width:620px){.metrics{grid-template-columns:1fr}.top-budget #budgetPreview{grid-template-columns:1fr}}';
   document.head.append(css);
 
   const displayMoney = value => '₩ ' + Number(value).toLocaleString('ko-KR');
-  const iconFor = category => ({개인지출:'◉',고정지출:'◆',생활비입금:'↓',기타입금:'↓'})[category] || '₩';
+  const iconFor = category => ({개인지출:'◉',고정지출:'◆',회사지출:'▣',생활비입금:'↓',기타입금:'↓'})[category] || '₩';
   function transactionRow(transaction) {
     const detail = transaction.subcategory ? ` · ${transaction.subcategory}` : '';
     const performanceText = transaction.performance === 'excluded' ? ' · 실적 미포함' : '';
@@ -232,7 +240,17 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     income.textContent = displayMoney(incomeValue); expense.textContent = displayMoney(expenseValue); balance.textContent = displayMoney(incomeValue-expenseValue);
     document.querySelector('#cardPerformance').innerHTML = cardPerformance('현대경차',700000,'#5369df') + cardPerformance('현대네이버',400000,'#55ad88');
     categoryTotals('개인지출', ['생활비','식비','회사커피'], document.querySelector('#personalTotals'));
-    categoryTotals('고정지출', ['개인','차','주거','고양이','기타'], document.querySelector('#fixedTotals'));
+    categoryTotals('고정지출', ['개인','차','주거','고양이','기타','저축'], document.querySelector('#fixedTotals'));
+    const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
+    const companySpend = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '회사지출').reduce((sum,t) => sum + t.amount, 0);
+    document.querySelector('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${displayMoney(companySpend)}</b></div>`;
+    const today = new Date(); today.setHours(0,0,0,0); const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+    const tomorrowDate = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+    const due = data.filter(t => t.type === 'expense' && t.date === tomorrowDate).reduce((sum,t) => sum + t.amount, 0);
+    document.querySelector('#tomorrowDue').textContent = displayMoney(due);
+    document.querySelector('#tomorrowDueNote').textContent = due ? `${tomorrow.getMonth()+1}월 ${tomorrow.getDate()}일 예정` : '등록된 내역이 없어요';
+    const savings = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '고정지출' && t.subcategory === '저축').reduce((sum,t) => sum + t.amount, 0);
+    document.querySelector('#savingsTotal').textContent = displayMoney(savings);
   }
   entryForm.onsubmit = event => {
     event.preventDefault();
