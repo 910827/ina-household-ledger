@@ -128,7 +128,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
   const budgetStorageKey = `moa-budget-v1:${activeMonth}`;
   const legacyBudgets = JSON.parse(localStorage.getItem('moa-budget-v1') || 'null');
   const isCurrentMonth = activeMonth === new Date().toISOString().slice(0, 7);
-  let budgets = JSON.parse(localStorage.getItem(budgetStorageKey) || 'null') || (isCurrentMonth ? legacyBudgets : null) || {개인지출: 0, 고정지출: 0};
+  let budgets = JSON.parse(localStorage.getItem(budgetStorageKey) || 'null') || (isCurrentMonth ? legacyBudgets : null) || {개인지출: 350000, 고정지출: 970000};
   if (!localStorage.getItem(budgetStorageKey) && legacyBudgets && isCurrentMonth) localStorage.setItem(budgetStorageKey, JSON.stringify(budgets));
   const budgetArea = document.querySelector('#budgetCards');
   const dashboardBudget = document.querySelector('#budgetPreview');
