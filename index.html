@@ -41,7 +41,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     '고정지출': ['개인', '차', '주거', '고양이', '기타', '저축'],
     '회사지출': []
   };
-  const paymentOptions = ['현대경차', '현대네이버', '국민쿠팡', '현금', '체크카드', '기타', '포인트'];
+  const paymentOptions = ['현대경차', '현대네이버', '국민쿠팡', '현금', '체크카드', '울산페이', '기타', '포인트'];
   parent.innerHTML = Object.keys(categoryMap).map(x => `<option>${x}</option>`).join('');
   payment.innerHTML = paymentOptions.map(x => `<option>${x}</option>`).join('');
   function updateDetails() {
