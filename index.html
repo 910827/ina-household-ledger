@@ -453,8 +453,8 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const list = currentData();
     if (key === 'income' || key === 'expense') {
       const selectedMonth = new URLSearchParams(location.search).get('month') || new Date().toISOString().slice(0, 7);
-      const names = key === 'income' ? ['급여','부수입'] : ['개인지출','고정지출','회사지출'];
-      const items = list.filter(item => item.type === key && item.date.startsWith(selectedMonth));
+      const names = key === 'income' ? ['급여','부수입'] : ['개인지출','고정지출'];
+      const items = list.filter(item => item.type === key && item.date.startsWith(selectedMonth) && (key === 'income' || names.includes(item.category)));
       const rows = names.map(name => {
         const amount = items.filter(item => item.category === name).reduce((sum,item) => sum + Number(item.amount), 0);
         return `<article><div><b>${name}</b><span>${money(amount)}</span></div></article>`;
