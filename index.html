@@ -271,7 +271,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     const companySpend = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && t.category === '회사지출').reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${displayMoney(companySpend)}</b></div>`;
     const nextMonth = new Date(`${selectedMonth}-01T00:00:00`); nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const dueMethods = ['현대경차','현대네이버','국민쿠팡','체크카드'];
+    const dueMethods = ['현대경차','현대네이버','국민쿠팡','현금'];
     const due = data.filter(t => t.date.startsWith(selectedMonth) && t.type === 'expense' && dueMethods.includes(t.method)).reduce((sum,t) => sum + t.amount, 0);
     document.querySelector('#tomorrowDue').textContent = displayMoney(due);
     document.querySelector('#tomorrowDueNote').textContent = due ? `${nextMonth.getMonth()+1}월 결제 예정` : '등록된 내역이 없어요';
