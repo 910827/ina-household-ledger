@@ -289,6 +289,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
     localStorage.setItem('moa-one-file-v2', JSON.stringify(data));
     modalNode.close();
     /* 저장 후 전체를 다시 계산해 개인·고정지출 예산과 카드 실적을 정확히 반영합니다. */
+    sessionStorage.setItem('moa-active-page', 'transactions');
     window.location.reload();
   };
   modalNode.addEventListener('close', () => { editingId = null; dialogTitle.textContent = '내역 추가'; submitButton.textContent = '내역 저장'; });
