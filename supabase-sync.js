@@ -7,6 +7,7 @@
   const budgetPrefix = `${activeMonth}|`;
   let client;
   let session;
+  let syncing = false;
 
   const uuid = value => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const newId = () => crypto.randomUUID();
@@ -25,6 +26,7 @@
     occurred_on: transaction.date, amount: Number(transaction.amount), type: transaction.type
   });
   const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const ordered = list => [...list].sort((left, right) => right.date.localeCompare(left.date) || String(right.id).localeCompare(String(left.id)));
   const reloadOnPage = page => {
     const url = new URL(location.href);
     url.searchParams.set('view', page);
@@ -71,7 +73,9 @@
   }
 
   async function hydrate() {
-    if (!session) return;
+    if (!session || syncing) return;
+    syncing = true;
+    try {
     let local = localTransactions().map(normalize);
     localStorage.setItem(txKey, JSON.stringify(local));
     const [{ data: remoteRows, error: txError }, { data: budgetRows, error: budgetError }] = await Promise.all([
@@ -80,25 +84,32 @@
     ]);
     if (txError || budgetError) return console.error(txError || budgetError);
     const remote = remoteRows.map(remoteToLocal);
-    if (!remote.length && local.length) {
-      const { error } = await client.from('transactions').upsert(local.map(localToRemote));
+    const remoteIds = new Set(remote.map(transaction => transaction.id));
+    const localOnly = local.filter(transaction => !remoteIds.has(transaction.id));
+    if (localOnly.length) {
+      const { error } = await client.from('transactions').upsert(localOnly.map(localToRemote));
       if (error) return console.error(error);
-      remote.push(...local);
+      remote.push(...localOnly);
     }
     const remoteBudgets = Object.fromEntries(budgetRows
       .filter(row => row.category.startsWith(budgetPrefix))
       .map(row => [row.category.slice(budgetPrefix.length), Number(row.amount)]));
     const currentBudgets = localBudgets();
-    if (!budgetRows.length && Object.keys(currentBudgets).length) {
+    if (!Object.keys(remoteBudgets).length && Object.keys(currentBudgets).length) {
       const rows = Object.entries(currentBudgets).map(([category, amount]) => ({ user_id: session.user.id, category: budgetPrefix + category, amount: Number(amount) || 0 }));
       const { error } = await client.from('budgets').upsert(rows);
       if (error) return console.error(error);
       Object.assign(remoteBudgets, currentBudgets);
     }
-    if (!same(local, remote) || !same(currentBudgets, remoteBudgets)) {
-      localStorage.setItem(txKey, JSON.stringify(remote));
+    const orderedLocal = ordered(local);
+    const orderedRemote = ordered(remote);
+    if (!same(orderedLocal, orderedRemote) || !same(currentBudgets, remoteBudgets)) {
+      localStorage.setItem(txKey, JSON.stringify(orderedRemote));
       localStorage.setItem(budgetKey, JSON.stringify(remoteBudgets));
-      location.reload();
+      reloadOnPage(document.querySelector('.page.on')?.id || 'home');
+    }
+    } finally {
+      syncing = false;
     }
   }
 
@@ -165,5 +176,7 @@
       if (session) setTimeout(hydrate, 0);
     });
     await hydrate();
+    window.addEventListener('focus', hydrate);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) hydrate(); });
   });
 })();
