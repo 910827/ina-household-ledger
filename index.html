@@ -295,7 +295,7 @@ const seed=[];let data=JSON.parse(localStorage.getItem('moa-one-file-v2')||'null
       render();
     });
     const incomeValue = monthData.filter(t => t.type === 'income').reduce((sum,t) => sum+t.amount, 0);
-    const expenseValue = monthData.filter(t => t.type === 'expense').reduce((sum,t) => sum+t.amount, 0);
+    const expenseValue = monthData.filter(t => t.type === 'expense' && ['개인지출','고정지출'].includes(t.category)).reduce((sum,t) => sum+t.amount, 0);
     income.textContent = displayMoney(incomeValue); expense.textContent = displayMoney(expenseValue); balance.textContent = displayMoney(incomeValue-expenseValue);
     document.querySelector('#cardPerformance').innerHTML = cardPerformance('현대경차',700000,'#5369df') + cardPerformance('현대네이버',400000,'#55ad88');
     categoryTotals('개인지출', ['생활비','식비','회사커피'], document.querySelector('#personalTotals'));
