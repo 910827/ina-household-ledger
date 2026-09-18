@@ -104,11 +104,12 @@
       .filter(row => row.category.startsWith(budgetPrefix))
       .map(row => [row.category.slice(budgetPrefix.length), Number(row.amount)]));
     const currentBudgets = localBudgets();
-    if (!Object.keys(remoteBudgets).length && Object.keys(currentBudgets).length) {
-      const rows = Object.entries(currentBudgets).map(([category, amount]) => ({ user_id: session.user.id, category: budgetPrefix + category, amount: Number(amount) || 0 }));
+    const localBudgetOnly = Object.entries(currentBudgets).filter(([category]) => !Object.prototype.hasOwnProperty.call(remoteBudgets, category));
+    if (localBudgetOnly.length) {
+      const rows = localBudgetOnly.map(([category, amount]) => ({ user_id: session.user.id, category: budgetPrefix + category, amount: Number(amount) || 0 }));
       const { error } = await client.from('budgets').upsert(rows);
       if (error) return console.error(error);
-      Object.assign(remoteBudgets, currentBudgets);
+      Object.assign(remoteBudgets, Object.fromEntries(localBudgetOnly));
     }
     const orderedLocal = ordered(local);
     const orderedRemote = ordered(remoteLive);
