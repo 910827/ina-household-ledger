@@ -178,6 +178,13 @@ function openDetail(kind) {
   if (kind === 'income' || kind === 'expense' || kind === 'savings') {
     const categories = kind === 'income' ? Object.keys(INCOME_CATEGORIES) : kind === 'savings' ? ['저축'] : ['개인지출', '고정지출'];
     const items = sortTransactions(current.filter(item => item.type === (kind === 'income' ? 'income' : 'expense') && categories.includes(item.category)));
+    if (kind === 'income') {
+      const categorySummary = `<div class="detail-budget">${categories.map(category => {
+        const amount = sum(items.filter(item => item.category === category));
+        return `<article><div><b>${category}</b><span>${money(amount)}</span></div></article>`;
+      }).join('')}</div>`;
+      return open('MONTHLY SUMMARY', '이번 달 수입 상세', { label: '이번 달 수입 합계', amount: money(sum(items)) }, categorySummary);
+    }
     return open('MONTHLY SUMMARY', kind === 'income' ? '이번 달 수입 상세' : kind === 'savings' ? '이번 달 저축 상세' : '이번 달 지출 상세', { label: '합계', amount: money(sum(items)) }, entries(items));
   }
   if (kind === 'due') {
