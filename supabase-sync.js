@@ -153,8 +153,14 @@
       event.preventDefault(); event.stopImmediatePropagation();
       const id = remove.dataset.delete;
       const deletedAt = new Date().toISOString();
-      const { error } = await client.from('transactions').update({ deleted_at: deletedAt }).eq('id', id);
-      if (error) return alert(`삭제하지 못했어요: ${error.message}\n\n삭제 동기화 설정이 필요할 수 있어요.`);
+      const { data: updatedRows, error } = await client.from('transactions')
+        .update({ deleted_at: deletedAt })
+        .eq('id', id)
+        .select('id');
+      if (error || !updatedRows?.length) {
+        const message = error?.message || '클라우드 삭제 권한이 없어요.';
+        return alert(`삭제하지 못했어요: ${message}\n\nSupabase의 transactions UPDATE 정책을 확인해 주세요.`);
+      }
       data = data.filter(item => String(item.id) !== id);
       localStorage.setItem(txKey, JSON.stringify(data));
       const deleted = deletedTransactions().filter(item => item.id !== id);
