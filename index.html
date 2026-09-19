@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#5369df">
   <title>모아 | 나의 가계부</title>
-  <link rel="stylesheet" href="styles.css?v=split-payment-v1">
+  <link rel="stylesheet" href="styles.css?v=daily-calendar-v1">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="logo"><span>M</span>모아</div>
       <nav aria-label="주 메뉴">
-        <button class="nav-button active" data-page="home">대시보드</button><button class="nav-button" data-page="transactions">거래 내역</button><button class="nav-button" data-page="budgets">예산</button>
+        <button class="nav-button active" data-page="home">대시보드</button><button class="nav-button" data-page="calendar">달력</button><button class="nav-button" data-page="transactions">거래 내역</button><button class="nav-button" data-page="budgets">예산</button>
       </nav>
       <div class="profile"><span class="avatar">이</span><span><b>이나님</b><small>개인 가계부</small></span></div>
     </aside>
@@ -31,15 +31,16 @@
           </div>
         </section>
         <section class="page" id="transactions"><div class="heading"><div><p class="eyebrow">ALL TRANSACTIONS</p><h1>거래 내역</h1></div></div><article class="panel"><div class="filters"><button class="filter active" data-filter="all">전체</button><button class="filter" data-filter="expense">지출</button><button class="filter" data-filter="income">수입</button></div><div id="all" class="transaction-list"></div></article></section>
+        <section class="page" id="calendar"><div class="heading"><div><p class="eyebrow">DAILY CASH FLOW</p><h1>일별 수입 · 지출</h1><p>날짜별 수입과 지출을 카테고리별로 확인하세요.</p></div></div><article class="panel calendar-panel"><div class="calendar-legend"><span class="calendar-income">수입</span><span class="calendar-personal">개인지출</span><span class="calendar-fixed">고정지출</span><span class="calendar-company">회사지출</span></div><div class="calendar-weekdays" aria-hidden="true"><b>일</b><b>월</b><b>화</b><b>수</b><b>목</b><b>금</b><b>토</b></div><div id="calendarGrid" class="calendar-grid"></div></article></section>
         <section class="page" id="budgets"><div class="heading"><div><p class="eyebrow">MONTHLY BUDGET</p><h1>예산 관리</h1><p>카테고리별 월 예산을 설정하세요.</p></div></div><div id="budgetCards" class="budget-cards"></div></section>
       </div>
     </main>
   </div>
-  <nav class="mobile-nav" aria-label="모바일 메뉴"><button data-page="home">대시보드</button><button data-page="transactions">거래 내역</button><button data-page="budgets">예산</button></nav>
+  <nav class="mobile-nav" aria-label="모바일 메뉴"><button data-page="home">대시보드</button><button data-page="calendar">달력</button><button data-page="transactions">거래 내역</button><button data-page="budgets">예산</button></nav>
   <dialog id="modal"><form id="form"><div class="dialog-head"><div><p class="eyebrow">TRANSACTION</p><h2 id="formTitle">내역 추가</h2></div><button class="close-button" type="button" data-close="modal" aria-label="닫기">×</button></div><div class="type-selector"><label><input name="type" type="radio" value="expense" checked><span>지출</span></label><label><input name="type" type="radio" value="income"><span>수입</span></label></div><label>카테고리<select name="category"></select></label><label class="expense-field" data-field="subcategory">세부 카테고리<select name="subcategory"></select></label><label>날짜<input name="date" type="date" required></label><div class="expense-field payment-fields" data-field="payment"><div class="payment-head"><b>결제수단</b><button type="button" class="text-button" id="addPayment">＋ 추가</button></div><div id="paymentRows"></div><div class="payment-total">총 결제 금액 <strong id="paymentTotal">₩ 0</strong></div></div><label class="expense-field" data-field="performance">카드 실적<select name="performance"><option value="included">실적 포함</option><option value="excluded">실적 미포함</option></select></label><label data-field="amount">금액<input name="amount" type="number" min="1" required inputmode="numeric" placeholder="0"></label><label data-field="title">내용<input name="title" required placeholder="예: 점심 식사"></label><button class="primary-button" type="submit" id="saveTransaction">내역 저장</button></form></dialog>
   <dialog id="detailModal"><div class="dialog-content"><div class="dialog-head"><div><p class="eyebrow" id="detailEyebrow">DETAIL</p><h2 id="detailTitle">상세 내역</h2></div><button class="close-button" type="button" data-close="detailModal" aria-label="닫기">×</button></div><div id="detailBody"></div></div></dialog>
   <script src="supabase.js"></script>
-  <script src="app.js?v=category-gift-v1"></script>
+  <script src="app.js?v=daily-calendar-v1"></script>
   <script defer src="supabase-sync.js?v=split-payment-v1"></script>
 </body>
 </html>

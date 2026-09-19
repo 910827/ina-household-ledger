@@ -112,7 +112,28 @@ function renderCategoryTotals() {
   $('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${money(expensesFor('회사지출'))}</b></div>`;
 }
 
-function render() { renderTransactionLists(); renderSummary(); renderBudgets(); renderCardPerformance(); renderCategoryTotals(); }
+function renderCalendar() {
+  const [year, month] = selectedMonth().split('-').map(Number);
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const lastDate = new Date(year, month, 0).getDate();
+  const days = Array.from({ length: firstDay + lastDate }, (_, index) => {
+    if (index < firstDay) return '<div class="calendar-day calendar-empty" aria-hidden="true"></div>';
+    const day = index - firstDay + 1;
+    const date = `${selectedMonth()}-${String(day).padStart(2, '0')}`;
+    const items = data.filter(item => item.date === date);
+    const total = (type, category) => sum(items.filter(item => item.type === type && (!category || item.category === category)));
+    const lines = [
+      ['income', '수입', total('income')],
+      ['personal', '개인', total('expense', '개인지출')],
+      ['fixed', '고정', total('expense', '고정지출')],
+      ['company', '회사', total('expense', '회사지출')]
+    ].filter(([, , amount]) => amount);
+    return `<article class="calendar-day${items.length ? ' has-transactions' : ''}"><b class="calendar-date">${day}</b><div class="calendar-totals">${lines.map(([kind, label, amount]) => `<span class="calendar-${kind}"><em>${label}</em>${money(amount)}</span>`).join('')}</div></article>`;
+  });
+  $('#calendarGrid').innerHTML = days.join('');
+}
+
+function render() { renderTransactionLists(); renderSummary(); renderBudgets(); renderCardPerformance(); renderCategoryTotals(); renderCalendar(); }
 
 function setPage(page) {
   $$('.page').forEach(item => item.classList.toggle('active', item.id === page));
