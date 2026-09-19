@@ -45,11 +45,14 @@ function saveBudgets(value) { localStorage.setItem(budgetKey(), JSON.stringify(v
 function sum(list) { return list.reduce((total, item) => total + Number(item.amount || 0), 0); }
 function expensesFor(category) { return sum(monthData().filter(item => item.type === 'expense' && item.category === category)); }
 function currentPage() { return $('.page.active')?.id || 'home'; }
+function paymentSplits(item) { return Array.isArray(item.payments) && item.payments.length ? item.payments : item.method ? [{ method: item.method, amount: Number(item.amount) }] : []; }
+function paymentAmount(item, method) { return sum(paymentSplits(item).filter(payment => payment.method === method)); }
+function paymentText(item) { return paymentSplits(item).map(payment => `${payment.method} ${money(payment.amount)}`).join(' · '); }
 
 function transactionRow(item, detailed = false) {
   const category = escapeHtml(item.category);
   const subcategory = item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : '';
-  const method = item.type === 'expense' && item.method ? ` · ${escapeHtml(item.method)}` : '';
+  const method = item.type === 'expense' && paymentText(item) ? ` · ${escapeHtml(paymentText(item))}` : '';
   const performance = item.performance === 'excluded' ? ' · 실적 미포함' : '';
   const icons = { 개인지출: '◉', 고정지출: '◆', 회사지출: '▣', 저축: '◎', 급여: '↓', 부수입: '↓' };
   if (detailed) return `<div class="detail-row"><span class="transaction-icon">${item.type === 'income' ? '↓' : '↑'}</span><div class="meta"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.date)} · ${category}${subcategory}${method}</small></div><strong class="amount ${item.type}">${item.type === 'income' ? '+' : '−'}${money(item.amount)}</strong></div>`;
@@ -70,7 +73,7 @@ function renderSummary() {
   const income = sum(current.filter(item => item.type === 'income'));
   const expense = sum(current.filter(item => item.type === 'expense' && ['개인지출', '고정지출'].includes(item.category)));
   const savings = expensesFor('저축');
-  const due = sum(current.filter(item => item.type === 'expense' && DUE_METHODS.includes(item.method)));
+  const due = current.filter(item => item.type === 'expense').reduce((total, item) => total + sum(paymentSplits(item).filter(payment => DUE_METHODS.includes(payment.method))), 0);
   $('#income').textContent = money(income);
   $('#expense').textContent = money(expense);
   $('#balance').textContent = money(income - expense - savings);
@@ -96,7 +99,7 @@ function renderBudgets() {
 
 function renderCardPerformance() {
   $('#cardPerformance').innerHTML = CARD_TARGETS.map(card => {
-    const used = sum(monthData().filter(item => item.type === 'expense' && item.method === card.name && item.performance !== 'excluded'));
+    const used = monthData().filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((total, item) => total + paymentAmount(item, card.name), 0);
     const rate = Math.min(100, Math.round(used / card.target * 100));
     return `<div class="card-row"><div class="card-row-head"><b>${card.name}</b><span>${money(used)} / ${money(card.target)}</span></div><div class="bar"><i style="width:${rate}%;background:${card.color}"></i></div><small>${rate}% 달성 · ${money(Math.max(card.target - used, 0))} 남음</small></div>`;
   }).join('');
@@ -135,10 +138,10 @@ function configureForm(transaction = null) {
   form.querySelector(`[name="type"][value="${transaction?.type || 'expense'}"]`).checked = true;
   updateFormFields(transaction?.category, transaction?.subcategory);
   form.elements.date.value = transaction?.date || `${selectedMonth()}-01`;
-  form.elements.amount.value = transaction?.amount || '';
+  form.elements.amount.value = transaction?.type === 'expense' && transaction?.category !== '저축' ? '' : transaction?.amount || '';
   form.elements.title.value = transaction?.title || '';
-  form.elements.method.value = transaction?.method || '현대경차';
   form.elements.performance.value = transaction?.performance || 'included';
+  renderPaymentRows(transaction ? paymentSplits(transaction) : [{ method: '현대경차', amount: '' }]);
   if (transaction?.category === '저축') applySavingsDefaults();
 }
 
@@ -150,26 +153,39 @@ function updateFormFields(category, subcategory) {
   const details = categories[form.elements.category.value];
   form.elements.subcategory.innerHTML = details.map(name => `<option>${name}</option>`).join('');
   if (details.includes(subcategory)) form.elements.subcategory.value = subcategory;
-  form.elements.method.innerHTML = PAYMENT_METHODS.map(name => `<option>${name}</option>`).join('');
   const savings = !isIncome && form.elements.category.value === '저축';
   $('[data-field="subcategory"]').hidden = isIncome || details.length === 0;
-  $('[data-field="method"]').hidden = isIncome || savings;
+  $('[data-field="payment"]').hidden = isIncome || savings;
   $('[data-field="performance"]').hidden = isIncome || savings;
+  $('[data-field="amount"]').hidden = !isIncome && !savings;
   $('[data-field="title"]').hidden = savings;
   form.elements.subcategory.disabled = isIncome || details.length === 0;
-  form.elements.method.disabled = isIncome || savings;
   form.elements.performance.disabled = isIncome || savings;
+  form.elements.amount.disabled = !isIncome && !savings;
   form.elements.title.readOnly = savings;
+  if (!isIncome && !savings && !$('#paymentRows').children.length) renderPaymentRows([{ method: '현대경차', amount: '' }]);
   if (savings) applySavingsDefaults();
 }
 
 function applySavingsDefaults() {
   if (form.elements.category.value !== '저축') return;
   const subcategory = form.elements.subcategory.value;
-  form.elements.method.value = '기타'; form.elements.performance.value = 'excluded';
+  form.elements.performance.value = 'excluded';
   form.elements.title.value = `저축 · ${subcategory}`;
   if (SAVINGS_AMOUNTS[subcategory]) form.elements.amount.value = SAVINGS_AMOUNTS[subcategory];
 }
+
+function renderPaymentRows(payments) {
+  $('#paymentRows').innerHTML = payments.map(payment => `<div class="payment-row" data-payment-row><select data-payment-method>${PAYMENT_METHODS.map(method => `<option ${method === payment.method ? 'selected' : ''}>${method}</option>`).join('')}</select><input data-payment-amount type="number" min="1" inputmode="numeric" value="${payment.amount || ''}" placeholder="금액"><button type="button" class="icon-button delete-button" data-remove-payment aria-label="결제수단 삭제">×</button></div>`).join('');
+  updatePaymentTotal();
+}
+
+function getPaymentSplits() {
+  return $$('[data-payment-row]').map(row => ({ method: row.querySelector('[data-payment-method]').value, amount: Number(row.querySelector('[data-payment-amount]').value) || 0 })).filter(payment => payment.amount > 0);
+}
+
+function updatePaymentTotal() { $('#paymentTotal').textContent = money(sum(getPaymentSplits())); }
+window.getPaymentSplits = getPaymentSplits;
 
 function openDetail(kind) {
   const current = monthData();
@@ -189,14 +205,15 @@ function openDetail(kind) {
     return open('MONTHLY SUMMARY', kind === 'income' ? '이번 달 수입 상세' : kind === 'savings' ? '이번 달 저축 상세' : '이번 달 지출 상세', { label: '합계', amount: money(sum(items)) }, entries(items));
   }
   if (kind === 'due') {
-    const items = current.filter(item => item.type === 'expense' && DUE_METHODS.includes(item.method));
-    return open('NEXT MONTH PAYMENT', '다음 달 나갈 돈 상세', { label: '합계', amount: money(sum(items)) }, `<div class="detail-budget">${DUE_METHODS.map(method => `<article><div><b>${method}</b><span>${money(sum(items.filter(item => item.method === method)))}</span></div></article>`).join('')}</div>`);
+    const items = current.filter(item => item.type === 'expense');
+    const total = items.reduce((value, item) => value + sum(paymentSplits(item).filter(payment => DUE_METHODS.includes(payment.method))), 0);
+    return open('NEXT MONTH PAYMENT', '다음 달 나갈 돈 상세', { label: '합계', amount: money(total) }, `<div class="detail-budget">${DUE_METHODS.map(method => `<article><div><b>${method}</b><span>${money(items.reduce((value, item) => value + paymentAmount(item, method), 0))}</span></div></article>`).join('')}</div>`);
   }
   if (kind === 'budget') {
     const value = budgets(); const names = ['개인지출', '고정지출'];
     return open('BUDGET STATUS', '예산 상세', { label: '설정 예산 합계', amount: money(names.reduce((total, name) => total + Number(value[name] || 0), 0)) }, `<div class="detail-budget">${names.map(name => `<article><div><b>${name}</b><span>${money(expensesFor(name))} / ${money(value[name])}</span></div><small>${money(Number(value[name] || 0) - expensesFor(name))} 남음</small></article>`).join('')}</div>`);
   }
-  if (kind === 'card') return open('CARD PERFORMANCE', '카드별 실적 상세', { label: '실적 포함 지출', amount: money(sum(current.filter(item => item.type === 'expense' && item.performance !== 'excluded'))) }, `<div class="detail-budget">${CARD_TARGETS.map(card => { const used = sum(current.filter(item => item.type === 'expense' && item.method === card.name && item.performance !== 'excluded')); return `<article><div><b>${card.name}</b><span>${money(used)} / ${money(card.target)}</span></div></article>`; }).join('')}</div>`);
+  if (kind === 'card') return open('CARD PERFORMANCE', '카드별 실적 상세', { label: '실적 포함 지출', amount: money(current.filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((value, item) => value + sum(paymentSplits(item)), 0)) }, `<div class="detail-budget">${CARD_TARGETS.map(card => { const used = current.filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((value, item) => value + paymentAmount(item, card.name), 0); return `<article><div><b>${card.name}</b><span>${money(used)} / ${money(card.target)}</span></div></article>`; }).join('')}</div>`);
   if (kind === 'category') return open('PERSONAL SPENDING', '개인지출 상세', { label: '개인지출 합계', amount: money(expensesFor('개인지출')) }, entries(sortTransactions(current.filter(item => item.category === '개인지출' && item.type === 'expense'))));
 }
 
@@ -206,10 +223,16 @@ function bindEvents() {
   $$('.filter').forEach(button => button.addEventListener('click', () => { filter = button.dataset.filter; $$('.filter').forEach(item => item.classList.toggle('active', item === button)); renderTransactionLists(); }));
   $('#add').addEventListener('click', () => { configureForm(); modal.showModal(); });
   $$('[data-close]').forEach(button => button.addEventListener('click', () => $(`#${button.dataset.close}`).close()));
-  form.addEventListener('change', event => { if (event.target.name === 'type' || event.target.name === 'category') updateFormFields(form.elements.category.value, form.elements.subcategory.value); if (event.target.name === 'subcategory') applySavingsDefaults(); });
+  form.addEventListener('change', event => { if (event.target.name === 'type' || event.target.name === 'category') updateFormFields(form.elements.category.value, form.elements.subcategory.value); if (event.target.name === 'subcategory') applySavingsDefaults(); if (event.target.matches('[data-payment-method], [data-payment-amount]')) updatePaymentTotal(); });
+  form.addEventListener('click', event => {
+    if (event.target.id === 'addPayment') { renderPaymentRows([...getPaymentSplits(), { method: '현대경차', amount: '' }]); }
+    if (event.target.closest('[data-remove-payment]')) { const rows = $$('[data-payment-row]'); if (rows.length > 1) { event.target.closest('[data-payment-row]').remove(); updatePaymentTotal(); } }
+  });
   form.addEventListener('submit', event => {
     event.preventDefault();
-    const values = new FormData(form); const record = { id: editingId || crypto.randomUUID(), title: values.get('title'), category: values.get('category'), subcategory: values.get('subcategory') || null, method: values.get('method') || null, performance: values.get('performance') || 'included', date: values.get('date'), amount: Number(values.get('amount')), type: values.get('type') };
+    const values = new FormData(form); const payments = values.get('type') === 'expense' && values.get('category') !== '저축' ? getPaymentSplits() : [];
+    if (values.get('type') === 'expense' && values.get('category') !== '저축' && !payments.length) return alert('결제수단과 금액을 하나 이상 입력해 주세요.');
+    const record = { id: editingId || crypto.randomUUID(), title: values.get('title'), category: values.get('category'), subcategory: values.get('subcategory') || null, method: payments[0]?.method || null, payments, performance: values.get('performance') || 'included', date: values.get('date'), amount: payments.length ? sum(payments) : Number(values.get('amount')), type: values.get('type') };
     data = editingId ? data.map(item => String(item.id) === String(editingId) ? record : item) : [record, ...data]; persist(); modal.close(); render(); setPage('transactions');
   });
   document.addEventListener('click', event => {

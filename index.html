@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#5369df">
   <title>모아 | 나의 가계부</title>
-  <link rel="stylesheet" href="styles.css?v=dashboard-layout-v1">
+  <link rel="stylesheet" href="styles.css?v=split-payment-v1">
 </head>
 <body>
   <div class="app-shell">
@@ -36,10 +36,10 @@
     </main>
   </div>
   <nav class="mobile-nav" aria-label="모바일 메뉴"><button data-page="home">대시보드</button><button data-page="transactions">거래 내역</button><button data-page="budgets">예산</button></nav>
-  <dialog id="modal"><form id="form"><div class="dialog-head"><div><p class="eyebrow">TRANSACTION</p><h2 id="formTitle">내역 추가</h2></div><button class="close-button" type="button" data-close="modal" aria-label="닫기">×</button></div><div class="type-selector"><label><input name="type" type="radio" value="expense" checked><span>지출</span></label><label><input name="type" type="radio" value="income"><span>수입</span></label></div><label>카테고리<select name="category"></select></label><label class="expense-field" data-field="subcategory">세부 카테고리<select name="subcategory"></select></label><label>날짜<input name="date" type="date" required></label><label class="expense-field" data-field="method">결제수단<select name="method"></select></label><label class="expense-field" data-field="performance">카드 실적<select name="performance"><option value="included">실적 포함</option><option value="excluded">실적 미포함</option></select></label><label>금액<input name="amount" type="number" min="1" required inputmode="numeric" placeholder="0"></label><label data-field="title">내용<input name="title" required placeholder="예: 점심 식사"></label><button class="primary-button" type="submit" id="saveTransaction">내역 저장</button></form></dialog>
+  <dialog id="modal"><form id="form"><div class="dialog-head"><div><p class="eyebrow">TRANSACTION</p><h2 id="formTitle">내역 추가</h2></div><button class="close-button" type="button" data-close="modal" aria-label="닫기">×</button></div><div class="type-selector"><label><input name="type" type="radio" value="expense" checked><span>지출</span></label><label><input name="type" type="radio" value="income"><span>수입</span></label></div><label>카테고리<select name="category"></select></label><label class="expense-field" data-field="subcategory">세부 카테고리<select name="subcategory"></select></label><label>날짜<input name="date" type="date" required></label><div class="expense-field payment-fields" data-field="payment"><div class="payment-head"><b>결제수단</b><button type="button" class="text-button" id="addPayment">＋ 추가</button></div><div id="paymentRows"></div><div class="payment-total">총 결제 금액 <strong id="paymentTotal">₩ 0</strong></div></div><label class="expense-field" data-field="performance">카드 실적<select name="performance"><option value="included">실적 포함</option><option value="excluded">실적 미포함</option></select></label><label data-field="amount">금액<input name="amount" type="number" min="1" required inputmode="numeric" placeholder="0"></label><label data-field="title">내용<input name="title" required placeholder="예: 점심 식사"></label><button class="primary-button" type="submit" id="saveTransaction">내역 저장</button></form></dialog>
   <dialog id="detailModal"><div class="dialog-content"><div class="dialog-head"><div><p class="eyebrow" id="detailEyebrow">DETAIL</p><h2 id="detailTitle">상세 내역</h2></div><button class="close-button" type="button" data-close="detailModal" aria-label="닫기">×</button></div><div id="detailBody"></div></div></dialog>
   <script src="supabase.js"></script>
-  <script src="app.js?v=dashboard-layout-v1"></script>
-  <script defer src="supabase-sync.js?v=deletion-fix-v1"></script>
+  <script src="app.js?v=split-payment-v1"></script>
+  <script defer src="supabase-sync.js?v=split-payment-v1"></script>
 </body>
 </html>

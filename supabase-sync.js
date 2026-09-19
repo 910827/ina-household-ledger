@@ -16,15 +16,21 @@
   const deletedTransactions = () => JSON.parse(localStorage.getItem(deletedTxKey) || '[]');
   const localBudgets = () => JSON.parse(localStorage.getItem(budgetKey) || '{}');
   const normalize = transaction => ({ ...transaction, id: uuid(transaction.id) ? transaction.id : newId() });
-  const remoteToLocal = row => ({
-    id: row.id, title: row.title, category: row.category, subcategory: row.subcategory,
-    method: row.payment_method, performance: row.performance, date: row.occurred_on,
-    amount: Number(row.amount), type: row.type, deletedAt: row.deleted_at || null
-  });
+  const readPayments = value => {
+    try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : null; } catch { return null; }
+  };
+  const remoteToLocal = row => {
+    const payments = readPayments(row.payment_method);
+    return {
+      id: row.id, title: row.title, category: row.category, subcategory: row.subcategory,
+      method: payments?.[0]?.method || row.payment_method, ...(payments ? { payments } : {}), performance: row.performance, date: row.occurred_on,
+      amount: Number(row.amount), type: row.type, deletedAt: row.deleted_at || null
+    };
+  };
   const localToRemote = transaction => ({
     id: transaction.id, user_id: session.user.id, title: transaction.title,
     category: transaction.category, subcategory: transaction.subcategory || null,
-    payment_method: transaction.method || null, performance: transaction.performance || 'included',
+    payment_method: transaction.payments?.length ? JSON.stringify(transaction.payments) : transaction.method || null, performance: transaction.performance || 'included',
     occurred_on: transaction.date, amount: Number(transaction.amount), type: transaction.type
   });
   const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
@@ -135,10 +141,12 @@
       event.preventDefault(); event.stopImmediatePropagation();
       const values = new FormData(form);
       const editingId = form.dataset.editingId;
+      const payments = values.get('type') === 'expense' && values.get('category') !== '저축' ? window.getPaymentSplits?.() || [] : [];
+      if (values.get('type') === 'expense' && values.get('category') !== '저축' && !payments.length) return alert('결제수단과 금액을 하나 이상 입력해 주세요.');
       const record = {
         id: editingId || newId(), title: values.get('title'), category: values.get('category'),
-        subcategory: values.get('subcategory'), method: values.get('method'), performance: values.get('performance'),
-        date: values.get('date'), amount: Number(values.get('amount')), type: values.get('type')
+        subcategory: values.get('subcategory'), method: payments[0]?.method || null, payments, performance: values.get('performance'),
+        date: values.get('date'), amount: payments.length ? payments.reduce((total, payment) => total + Number(payment.amount || 0), 0) : Number(values.get('amount')), type: values.get('type')
       };
       data = editingId ? data.map(item => String(item.id) === String(editingId) ? record : item) : [record, ...data];
       localStorage.setItem(txKey, JSON.stringify(data));
