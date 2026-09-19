@@ -68,7 +68,15 @@ function transactionRow(item, detailed = false) {
 function empty() { return '<p class="empty">아직 등록된 내역이 없어요.</p>'; }
 
 function renderTransactionLists() {
-  const list = sortTransactions(monthData()).filter(item => filter === 'all' || item.type === filter);
+  const categories = ['개인지출', '고정지출', '회사지출'];
+  const methods = ['현대경차', '현대네이버', '국민쿠팡'];
+  const list = sortTransactions(monthData()).filter(item => {
+    if (filter === 'all') return true;
+    if (filter === 'income') return item.type === 'income';
+    if (categories.includes(filter)) return item.type === 'expense' && item.category === filter;
+    if (methods.includes(filter)) return item.type === 'expense' && paymentSplits(item).some(payment => payment.method === filter);
+    return false;
+  });
   const recent = $('#recent');
   if (recent) recent.innerHTML = list.slice(0, 4).map(item => transactionRow(item)).join('') || empty();
   $('#all').innerHTML = list.map(item => transactionRow(item)).join('') || empty();
