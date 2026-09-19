@@ -10,7 +10,7 @@ const EXPENSE_CATEGORIES = {
 const INCOME_CATEGORIES = { 급여: [], 부수입: [] };
 const PAYMENT_METHODS = ['현대경차', '현대네이버', '국민쿠팡', '현금', '체크카드', '울산페이', '기타', '포인트'];
 const SAVINGS_AMOUNTS = { 청년적금: 500000, ISA: 500000, 토스증권: 200000, 주택청약: 100000 };
-const CARD_TARGETS = [{ name: '현대경차', target: 700000, color: '#5369df' }, { name: '현대네이버', target: 400000, color: '#55ad88' }];
+const CARD_TARGETS = [{ name: '현대경차', target: 700000, color: '#5369df' }, { name: '현대네이버', target: 400000, color: '#55ad88' }, { name: '국민쿠팡', target: 0, color: '#eb7164' }];
 const DUE_METHODS = ['현대경차', '현대네이버', '국민쿠팡', '현금'];
 
 function normalizeSubcategory(transaction) {
@@ -114,8 +114,9 @@ function renderBudgets() {
 function renderCardPerformance() {
   $('#cardPerformance').innerHTML = CARD_TARGETS.map(card => {
     const used = monthData().filter(item => item.type === 'expense' && item.performance !== 'excluded').reduce((total, item) => total + paymentAmount(item, card.name), 0);
-    const rate = Math.min(100, Math.round(used / card.target * 100));
-    return `<div class="card-row"><div class="card-row-head"><b>${card.name}</b><span>${money(used)} / ${money(card.target)}</span></div><div class="bar"><i style="width:${rate}%;background:${card.color}"></i></div><small>${rate}% 달성 · ${money(Math.max(card.target - used, 0))} 남음</small></div>`;
+    const rate = card.target ? Math.min(100, Math.round(used / card.target * 100)) : 0;
+    const note = card.target ? `${rate}% 달성 · ${money(Math.max(card.target - used, 0))} 남음` : '실적 목표 미설정';
+    return `<div class="card-row"><div class="card-row-head"><b>${card.name}</b><span>${money(used)} / ${money(card.target)}</span></div><div class="bar"><i style="width:${rate}%;background:${card.color}"></i></div><small>${note}</small></div>`;
   }).join('');
 }
 
