@@ -22,7 +22,7 @@
   const remoteToLocal = row => {
     const payments = readPayments(row.payment_method);
     return {
-      id: row.id, title: row.title, category: row.category, subcategory: row.subcategory,
+      id: row.id, title: row.title, category: row.category, subcategory: row.category === '개인지출' && row.subcategory === '회사커피' ? '커피/회사점심' : row.subcategory,
       method: payments?.[0]?.method || row.payment_method, ...(payments ? { payments } : {}), performance: row.performance, date: row.occurred_on,
       amount: Number(row.amount), type: row.type, deletedAt: row.deleted_at || null
     };

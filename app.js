@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'moa-one-file-v2';
 const BUDGET_PREFIX = 'moa-budget-v1:';
 const EXPENSE_CATEGORIES = {
-  개인지출: ['생활비', '식비', '회사커피', '경조사'],
+  개인지출: ['생활비', '식비', '커피/회사점심', '경조사'],
   고정지출: ['개인', '차', '주거', '고양이', '기타'],
   회사지출: [],
   저축: ['청년적금', 'ISA', '토스증권', '주택청약', '추가 저축']
@@ -13,7 +13,13 @@ const SAVINGS_AMOUNTS = { 청년적금: 500000, ISA: 500000, 토스증권: 20000
 const CARD_TARGETS = [{ name: '현대경차', target: 700000, color: '#5369df' }, { name: '현대네이버', target: 400000, color: '#55ad88' }];
 const DUE_METHODS = ['현대경차', '현대네이버', '국민쿠팡', '현금'];
 
-let data = readJson(STORAGE_KEY, []);
+function normalizeSubcategory(transaction) {
+  return transaction?.category === '개인지출' && transaction.subcategory === '회사커피'
+    ? { ...transaction, subcategory: '커피/회사점심' }
+    : transaction;
+}
+
+let data = readJson(STORAGE_KEY, []).map(normalizeSubcategory);
 let filter = 'all';
 let editingId = null;
 
