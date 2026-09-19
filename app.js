@@ -105,7 +105,6 @@ function renderCategoryTotals() {
   const render = (target, category, names) => { $(target).innerHTML = names.map(name => `<div class="category-total"><span>${name}</span><b>${money(sum(monthData().filter(item => item.type === 'expense' && item.category === category && item.subcategory === name)))}</b></div>`).join(''); };
   render('#personalTotals', '개인지출', EXPENSE_CATEGORIES.개인지출);
   render('#fixedTotals', '고정지출', EXPENSE_CATEGORIES.고정지출);
-  render('#savingsTotals', '저축', EXPENSE_CATEGORIES.저축);
   $('#companyTotals').innerHTML = `<div class="category-total"><span>회사지출 합계</span><b>${money(expensesFor('회사지출'))}</b></div>`;
 }
 
