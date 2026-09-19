@@ -2,7 +2,7 @@
 const STORAGE_KEY = 'moa-one-file-v2';
 const BUDGET_PREFIX = 'moa-budget-v1:';
 const EXPENSE_CATEGORIES = {
-  개인지출: ['생활비', '식비', '회사커피'],
+  개인지출: ['생활비', '식비', '회사커피', '경조사'],
   고정지출: ['개인', '차', '주거', '고양이', '기타'],
   회사지출: [],
   저축: ['청년적금', 'ISA', '토스증권', '주택청약', '추가 저축']
