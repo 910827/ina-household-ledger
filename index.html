@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#5369df">
   <title>모아 | 나의 가계부</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=dashboard-layout-v1">
 </head>
 <body>
   <div class="app-shell">
@@ -23,12 +23,11 @@
           <div class="heading"><div><p class="eyebrow" id="monthEyebrow"></p><h1>이번 달, 돈의 흐름</h1><p>등록된 거래를 한눈에 확인하세요.</p></div><div class="stamp">TOTAL BALANCE<b id="balance">₩ 0</b></div></div>
           <div class="metrics"><button class="metric" data-detail="income"><i>↙</i><span>이번 달 수입</span><strong id="income">₩ 0</strong><small>급여와 부수입</small></button><button class="metric" data-detail="expense"><i>↗</i><span>이번 달 지출</span><strong id="expense">₩ 0</strong><small>개인지출과 고정지출</small></button><button class="metric" data-detail="due"><i>◷</i><span>다음 달 나갈 돈</span><strong id="tomorrowDue">₩ 0</strong><small id="tomorrowDueNote">등록된 내역이 없어요</small></button><button class="metric" data-detail="savings"><i>◎</i><span>저축</span><strong id="savingsTotal">₩ 0</strong><small>이번 달 저축 금액</small></button></div>
           <div class="dashboard-grid">
-            <article class="panel" data-detail="budget"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="text-button" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article>
+            <article class="panel dashboard-budget" data-detail="budget"><div class="panel-head"><div><p class="eyebrow">BUDGET STATUS</p><h2>예산 현황</h2></div><button class="text-button" data-page="budgets">관리하기 →</button></div><div id="budgetPreview"></div></article>
             <article class="panel" data-detail="card"><div class="panel-head"><div><p class="eyebrow">CARD PERFORMANCE</p><h2>카드별 실적</h2></div></div><div id="cardPerformance"></div></article>
-            <article class="panel"><div class="panel-head"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>최근 내역</h2></div><button class="text-button" data-page="transactions">전체 보기 →</button></div><div id="recent" class="transaction-list"></div></article>
+            <article class="panel"><div class="panel-head"><div><p class="eyebrow">COMPANY SPENDING</p><h2>회사지출</h2></div></div><div id="companyTotals"></div></article>
             <article class="panel" data-detail="category"><div class="panel-head"><div><p class="eyebrow">PERSONAL SPENDING</p><h2>개인지출</h2></div></div><div id="personalTotals"></div></article>
             <article class="panel"><div class="panel-head"><div><p class="eyebrow">FIXED SPENDING</p><h2>고정지출</h2></div></div><div id="fixedTotals"></div></article>
-            <article class="panel"><div class="panel-head"><div><p class="eyebrow">COMPANY SPENDING</p><h2>회사지출</h2></div></div><div id="companyTotals"></div></article>
           </div>
         </section>
         <section class="page" id="transactions"><div class="heading"><div><p class="eyebrow">ALL TRANSACTIONS</p><h1>거래 내역</h1></div></div><article class="panel"><div class="filters"><button class="filter active" data-filter="all">전체</button><button class="filter" data-filter="expense">지출</button><button class="filter" data-filter="income">수입</button></div><div id="all" class="transaction-list"></div></article></section>
@@ -40,7 +39,7 @@
   <dialog id="modal"><form id="form"><div class="dialog-head"><div><p class="eyebrow">TRANSACTION</p><h2 id="formTitle">내역 추가</h2></div><button class="close-button" type="button" data-close="modal" aria-label="닫기">×</button></div><div class="type-selector"><label><input name="type" type="radio" value="expense" checked><span>지출</span></label><label><input name="type" type="radio" value="income"><span>수입</span></label></div><label>카테고리<select name="category"></select></label><label class="expense-field" data-field="subcategory">세부 카테고리<select name="subcategory"></select></label><label>날짜<input name="date" type="date" required></label><label class="expense-field" data-field="method">결제수단<select name="method"></select></label><label class="expense-field" data-field="performance">카드 실적<select name="performance"><option value="included">실적 포함</option><option value="excluded">실적 미포함</option></select></label><label>금액<input name="amount" type="number" min="1" required inputmode="numeric" placeholder="0"></label><label data-field="title">내용<input name="title" required placeholder="예: 점심 식사"></label><button class="primary-button" type="submit" id="saveTransaction">내역 저장</button></form></dialog>
   <dialog id="detailModal"><div class="dialog-content"><div class="dialog-head"><div><p class="eyebrow" id="detailEyebrow">DETAIL</p><h2 id="detailTitle">상세 내역</h2></div><button class="close-button" type="button" data-close="detailModal" aria-label="닫기">×</button></div><div id="detailBody"></div></div></dialog>
   <script src="supabase.js"></script>
-  <script src="app.js?v=income-detail-v1"></script>
+  <script src="app.js?v=dashboard-layout-v1"></script>
   <script defer src="supabase-sync.js?v=deletion-fix-v1"></script>
 </body>
 </html>

@@ -60,7 +60,8 @@ function empty() { return '<p class="empty">아직 등록된 내역이 없어요
 
 function renderTransactionLists() {
   const list = sortTransactions(monthData()).filter(item => filter === 'all' || item.type === filter);
-  $('#recent').innerHTML = list.slice(0, 4).map(item => transactionRow(item)).join('') || empty();
+  const recent = $('#recent');
+  if (recent) recent.innerHTML = list.slice(0, 4).map(item => transactionRow(item)).join('') || empty();
   $('#all').innerHTML = list.map(item => transactionRow(item)).join('') || empty();
 }
 
