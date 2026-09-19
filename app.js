@@ -215,7 +215,7 @@ function bindEvents() {
     const edit = event.target.closest('[data-edit]'); const remove = event.target.closest('[data-delete]'); const detail = event.target.closest('[data-detail]');
     if (edit) { const transaction = data.find(item => String(item.id) === edit.dataset.edit); if (transaction) { configureForm(transaction); modal.showModal(); } }
     if (remove) { const transaction = data.find(item => String(item.id) === remove.dataset.delete); if (transaction && confirm(`“${transaction.title}” 내역을 삭제할까요?`)) { data = data.filter(item => String(item.id) !== remove.dataset.delete); persist(); render(); } }
-    if (detail && !event.target.closest('button')) openDetail(detail.dataset.detail);
+    if (detail && !event.target.closest('.text-button, .icon-button')) openDetail(detail.dataset.detail);
     if (event.target.id === 'saveBudget') { const value = Object.fromEntries($$('[data-budget]').map(input => [input.dataset.budget, Number(input.value) || 0])); saveBudgets(value); renderBudgets(); }
   });
 }
